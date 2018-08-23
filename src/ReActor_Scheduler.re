@@ -4,7 +4,7 @@ let defaultWorker = "/lib/es6_global/src/ReActor_Worker.bs.js";
 
 type worker = {
   id: int,
-  worker: Worker.t,
+  worker: Worker.t(instruction, reply(ReActor_Worker.t)),
 };
 
 type t = {

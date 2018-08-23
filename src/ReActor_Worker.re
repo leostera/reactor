@@ -10,17 +10,26 @@ type t = {
 let id = Random.(random(7)->asHex(~length=7));
 let this = ref({id, processes: [], proc_count: 0});
 
+let scheduler: Worker.t(reply(t), instruction) = Worker.self;
+
 module Handlers = {
-  let handle_info = () =>
-    Worker.self |> Worker.postMessage(WorkerStatus(this^));
+  let handle_info = () => {
+    scheduler |> Worker.postMessage(WorkerStatus(this^));
+    ();
+  };
 
-  let handle_spawn = () => Js.log({j|Spawning|j});
+  let handle_spawn = () => {
+    Js.log({j|Spawning|j});
+    ();
+  };
 
-  let onMessage = message =>
+  let onMessage = message => {
     switch (Worker.dataGet(message)) {
     | Info => handle_info()
     | Spawn => handle_spawn()
     };
+    ();
+  };
 };
 
 let rec loop = worker =>
@@ -34,4 +43,4 @@ let rec loop = worker =>
 
 loop(this^);
 
-Worker.self |> Worker.onMessage(Handlers.onMessage);
+scheduler |> Worker.onMessage(Handlers.onMessage);
