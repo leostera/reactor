@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.lamport.tla.toolbox.tool.tlc.modelCheck">
+<stringAttribute key="configurationName" value="ReActor_Scheduler_SnapShot_1535211482983"/>
+<stringAttribute key="specName" value="ReActor"/>
+</launchConfiguration>
