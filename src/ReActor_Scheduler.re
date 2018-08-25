@@ -1,36 +1,33 @@
 open ReActor_Process;
 open ReActor_Utils;
 
-type instruction =
-  | Info
-  | Spawn;
-
-type reply('a) =
-  | SchedulerInfo('a);
-
-type kind =
-  | Main;
-
 type t = {
-  id: string,
-  proc_count: int,
+  id: (string, string),
+  process_count: int,
 };
 
+let nextPid = ({id: (node_name, scheduler_id), process_count}) =>
+  Pid.make(node_name, scheduler_id, process_count + 1);
+
+/* TODO(@ostera): pick the one with lowest process_count */
 let leastBusy: list(ref(t)) => ref(t) = workers => List.nth(workers, 0);
 
-let make_workerThread = () =>
-  FFI_WebWorker.make(
-    ~src="/lib/es6_global/src/ReActor_WebWorker.bs.js",
-    ~worker_type=FFI_WebWorker.ModuleWorker,
-  );
+let make = node_name => {
+  id: (node_name, Random.shortId()),
+  process_count: 0,
+};
 
-let make = () => {id: Random.(random(7)->asHex(~length=7)), proc_count: 0};
+let spawn: (f('a), 'a, ref(t)) => Pid.t =
+  (f, args, scheduler) => {
+    let pid = scheduler^ |> nextPid;
 
-let send: (instruction, ref(t)) => unit =
-  (msg, worker) =>
-    switch (msg) {
-    | Info => Js.log(worker^)
-    | Spawn =>
-      let pid = pid(0, worker^.proc_count, 0);
-      Js.log({j| Created Process($pid) |j});
+    /* TODO(@ostera): save this process in the scheduler */
+    let _ = ReActor_Process.make(pid, f, args);
+
+    let scheduler' = {
+      ...scheduler^,
+      process_count: scheduler^.process_count + 1,
     };
+    scheduler := scheduler';
+    pid;
+  };

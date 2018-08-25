@@ -1,15 +1,46 @@
-type pid = (int, int, int);
+module Pid = {
+  type t = (string, string, int);
+  let make = (node_name, scheduler_id, process_number) => (
+    node_name,
+    scheduler_id,
+    process_number,
+  );
+};
 
-let pid = (node, proc_count, noise) => (node, proc_count, noise);
+type status =
+  | Alive
+  | Dead;
 
-type m =
-  | BsModule(string);
+type env('a) = {
+  self: unit => Pid.t,
+  loop: 'a => 'a,
+};
 
-type mfa('a) = (m, string, 'a);
+type f('a) = (env('a), 'a) => 'a;
 
-let mfa: (m, string, 'a => 'b, 'a) => mfa('a) = (m, f, _, a) => (m, f, a);
+type t('a) = {
+  pid: Pid.t,
+  f: f('a),
+  initial_args: 'a,
+  status: ref(status),
+};
 
-type process = {
-  pid,
-  f: unit => unit,
+let make = (pid, f, initial_args) => {
+  let process = {pid, f, initial_args, status: ref(Dead)};
+  let rec run = args => {
+    let args' = f(env, args);
+    switch (process.status^) {
+    | Alive => FFI_Runtime.defer(() => run(args'), 0)
+    | Dead => ()
+    };
+  }
+  and env = {
+    self: () => pid,
+    loop: args => {
+      FFI_Runtime.defer(() => run(args), 0);
+      args;
+    },
+  };
+  let _ = run(initial_args);
+  process;
 };

@@ -1,16 +1,14 @@
 open ReActor;
+open FFI_Runtime;
 
-let f = (a, b) => {
-  let c = a + b;
-  Js.log({j|$a + $b = $c|j});
-};
+type sample = {counter: int};
 
-let run = () => Js.log(spawn());
+let rec noop: Process.f(sample) =
+  (env, state) => env.loop({counter: state.counter + 1});
 
-run();
-
-FFI_Runtime.defer(() => run(), 1000);
-FFI_Runtime.defer(() => run(), 1000);
-FFI_Runtime.defer(() => run(), 1000);
-FFI_Runtime.defer(() => run(), 1000);
-FFI_Runtime.defer(() => run(), 1000);
+let pids = [
+  spawn(noop, {counter: 0}),
+  spawn(noop, {counter: 0}),
+  spawn(noop, {counter: 0}),
+  spawn(noop, {counter: 0}),
+];

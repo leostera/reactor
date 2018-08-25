@@ -14,8 +14,8 @@ TypeInvariant == /\ sid \in [ node |-> Nat, scheduler |-> Nat ]
 Init == /\ sid \in << Nat, Nat >>
         /\ processes = <<>>
         /\ process_count = 0
-        
-Spawn(r, f) == /\ process_count' = process_count + 1 
+
+Spawn(r, f) == /\ process_count' = process_count + 1
                /\ last_pid'  = Append(sid, process_count')
                /\ processes' = Append(processes, << last_pid, f >>)
                /\ r' = last_pid'
@@ -23,7 +23,7 @@ Spawn(r, f) == /\ process_count' = process_count + 1
 
 Info(r) == /\ r' = [ process_count |-> process_count ]
            /\ UNCHANGED <<sid, processes, process_count>>
-           
+
 GC == /\ LET isAlive(x) == x.status = "alive" IN
          processes' = SelectSeq(processes, isAlive)
       /\ process_count' = Len(processes')

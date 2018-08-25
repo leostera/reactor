@@ -54,6 +54,8 @@ module Random = {
     |> Array.map(Number.to_string(16))
     |> Array.fold_left((a, b) => {j|$a$b|j}, "")
     |> (x => String.sub(x, 0, length));
+
+  let shortId = () => random(7)->asHex(~length=7);
 };
 
 let make_list = (n, f) => Array.make(n, 0) |> Array.to_list |> List.map(f);
