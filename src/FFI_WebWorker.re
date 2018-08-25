@@ -30,10 +30,9 @@ module FFI = {
   external __unsafe_postMessage: (t('a, 'b), 'm) => unit = "postMessage";
 };
 
-let make: (string, worker_type) => t('a, 'b) =
-  (src, worker_type) =>
-    FFI.opts(~worker_type=worker_type_to_string(worker_type))
-    |> FFI.__unsafe_new_Worker(src);
+let make = (~src, ~worker_type) =>
+  FFI.opts(~worker_type=worker_type_to_string(worker_type))
+  |> FFI.__unsafe_new_Worker(src);
 
 let onMessage: (message('b) => unit, t('a, 'b)) => t('a, 'b) =
   (handler, worker) => {
