@@ -55,3 +55,5 @@ module Random = {
     |> Array.fold_left((a, b) => {j|$a$b|j}, "")
     |> (x => String.sub(x, 0, length));
 };
+
+let make_list = (n, f) => Array.make(n, 0) |> Array.to_list |> List.map(f);

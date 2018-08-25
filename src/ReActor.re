@@ -1,12 +1,10 @@
-let main = ReActor_Scheduler.make(~checkupFreq=500);
+let main =
+  ReActor_Node.make(
+    ~checkupFreq=500,
+    ~maxConcurrency=FFI_Window.hardwareConcurrency - 1,
+  )
+  |> ReActor_Node.run;
 
 Js.log("Created main scheduler...");
 
-main |> ReActor_Scheduler.loop;
-
-/* spawn(BsModule("ReActor"), "f", [1, 2]); */
-
-let f = (a, b) => {
-  let c = a + b;
-  Js.log({j|$a + $b = $c|j});
-};
+let spawn = ReActor_Node.spawn(main);
