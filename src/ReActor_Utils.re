@@ -4,6 +4,13 @@ module Date = {
   let now = __unsafe_now;
 };
 
+module Performance = {
+  [@bs.val] [@bs.scope "performance"]
+  external __unsafe_now: unit => int = "now";
+
+  let now = __unsafe_now;
+};
+
 module Monotonic = {
   let __monotonic_counter = ref(0);
   let next = () => {
