@@ -4,6 +4,15 @@
   "name": "reactor",
   "version": "0.1.0",
   "sources": [{
+    "dir" : "examples",
+    "subdirs" : true
+  }, {
+    "dir" : "bench",
+    "subdirs" : true
+  }, {
+    "dir" : "test",
+    "subdirs" : true
+  }, {
     "dir" : "src",
     "subdirs" : true
   }],
