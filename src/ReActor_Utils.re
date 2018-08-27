@@ -1,3 +1,17 @@
+module DOM = {
+  type node;
+
+  [@bs.val] [@bs.scope "document"]
+  external __unsafe_get_by_id: string => node = "getElementById";
+
+  [@bs.set]
+  external __unsafe_set_inner_text: (node, string) => unit = "innerText";
+
+  let getElementById = __unsafe_get_by_id;
+
+  let withInnerText = __unsafe_set_inner_text;
+};
+
 module Date = {
   [@bs.val] [@bs.scope "Date"] external __unsafe_now: unit => int = "now";
 
