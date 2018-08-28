@@ -81,7 +81,7 @@ switch (where_is("logger")) {
 | Some(pid) =>
   let differ = Differ.start({send_to: pid, wrap: DOMLogger.logInt});
   let _clock =
-    Clock.start({delay: 100, send_to: differ, wrap: x => Differ.Diff(x)});
+    Clock.start({delay: 0, send_to: differ, wrap: x => Differ.Diff(x)});
   ();
 | None => Js.log("Failed to start logger.")
 };
