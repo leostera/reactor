@@ -1,10 +1,14 @@
 open ReActor_Process;
 open ReActor_Utils;
 
-type sid = (string, string);
+module Sid = {
+  type t = (string, string);
+  let toString: t => string =
+    ((node_name, scheduler_id)) => {j|<$node_name.$scheduler_id>|j};
+};
 
 type t = {
-  id: sid,
+  id: Sid.t,
   processes: list(ReActor_Process.t),
   process_count: int,
   tracer: option(ReActor_Tracer.t),
@@ -19,10 +23,10 @@ let byProcessCount = (a, b) => compare(a^.process_count, b^.process_count);
 let leastBusy: list(ref(t)) => ref(t) =
   workers => workers |> List.sort(byProcessCount) |> List.hd;
 
-let pidToSid: Pid.t => sid =
+let pidToSid: Pid.t => Sid.t =
   ((node_name, scheduler_id, _)) => (node_name, scheduler_id);
 
-let findById: (sid, list(ref(t))) => ref(t) =
+let findById: (Sid.t, list(ref(t))) => ref(t) =
   i => List.find(s => s^.id == i);
 
 let make: string => t =

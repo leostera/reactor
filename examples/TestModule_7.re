@@ -52,6 +52,9 @@ module Differ = {
         fun
         | Diff(t) => {
             let delta = Performance.now() - t.current_time;
+            let pid = t.pid |> Pid.toString;
+            let self = env.self() |> Pid.toString;
+            Js.log({j|Received message from: $pid while running on $self|j});
             send(config.send_to, config.wrap(delta));
             env.loop(config);
           }
@@ -90,7 +93,7 @@ trace({
     | Differ.Diff(_) => true
     | _ => false
     },
-  timeout: 500,
+  timeout: 50,
   handler:
     fun
     | Differ.Diff(n) => Js.log({j|Differ got message => $n|j})

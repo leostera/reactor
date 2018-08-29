@@ -6,6 +6,7 @@ module Process = ReActor_Process;
 module Pid = ReActor_Process.Pid;
 module Message = ReActor_Process.Message;
 module Tracer = ReActor_Tracer;
+module Sid = ReActor_Scheduler.Sid;
 
 let __main = ReActor_Node.make();
 
