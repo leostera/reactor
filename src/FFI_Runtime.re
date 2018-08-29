@@ -1,6 +1,9 @@
 [@bs.val]
-external __unsafe_setImmediate: (unit => 'a, int) => unit = "setImmediate";
+external __unsafe_setImmediate: (unit => 'a) => unit = "setImmediate";
 
-let defer = __unsafe_setImmediate;
+[@bs.val]
+external __unsafe_setTimeout: (unit => 'a, int) => unit = "setTimeout";
 
-let nextTick = f => defer(f, 0);
+let defer = __unsafe_setTimeout;
+
+let nextTick = __unsafe_setImmediate;

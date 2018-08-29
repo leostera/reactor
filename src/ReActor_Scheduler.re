@@ -7,6 +7,7 @@ type t = {
   id: sid,
   processes: list(ReActor_Process.t),
   process_count: int,
+  tracer: option(ReActor_Tracer.t),
 };
 
 let nextPid: t => Pid.t =
@@ -26,6 +27,7 @@ let make: string => t =
     id: (node_name, Random.shortId()),
     processes: [],
     process_count: 0,
+    tracer: None,
   };
 
 let spawn: (f('s), 's, ref(t)) => Pid.t =
@@ -51,7 +53,26 @@ let exit: (Pid.t, ref(t)) => unit =
     |> ReActor_Process.markAsDead;
 
 let send: (Pid.t, Message.t, ref(t)) => unit =
-  (pid, msg, scheduler) =>
+  (pid, msg, scheduler) => {
+    switch (scheduler^.tracer) {
+    | Some(tracer) => ReActor_Tracer.trace(tracer, pid, msg)
+    | None => ()
+    };
     scheduler^.processes
     |> List.find(p => p.pid == pid)
     |> ReActor_Process.send(msg);
+  };
+
+let trace: (ReActor_Tracer.t, ref(t)) => unit =
+  (tracer, scheduler) => {
+    let time = tracer.timeout;
+    Js.log({j|[ReActor] Tracer setup for $time ms.|j});
+    scheduler := {...scheduler^, tracer: Some(tracer)};
+    FFI_Runtime.defer(
+      () => {
+        scheduler := {...scheduler^, tracer: None};
+        Js.log({j|[ReActor] Tracer stopped after $time ms.|j});
+      },
+      tracer.timeout,
+    );
+  };

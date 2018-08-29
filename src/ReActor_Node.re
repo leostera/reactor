@@ -17,6 +17,10 @@ let make: unit => t =
     };
   };
 
+let trace: (t, ReActor_Tracer.t) => unit =
+  (node, tracer) =>
+    node.schedulers |> List.iter(ReActor_Scheduler.trace(tracer));
+
 let spawn: (t, f('s), 's) => Pid.t =
   (node, f, args) =>
     node.schedulers

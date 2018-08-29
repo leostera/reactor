@@ -73,9 +73,17 @@ module Clock = {
 
 switch (where_is("logger")) {
 | Some(pid) =>
-  let differ = Differ.start({send_to: pid, wrap: x => Logger.Log(x)});
-  let _clock =
-    Clock.start({delay: 100, send_to: differ, wrap: x => Differ.Diff(x)});
+  Array.make(10, 0)
+  |> Array.iter(_i => {
+       let differ = Differ.start({send_to: pid, wrap: x => Logger.Log(x)});
+       let _clocks =
+         Clock.start({
+           delay: 100,
+           send_to: differ,
+           wrap: x => Differ.Diff(x),
+         });
+       ();
+     });
   ();
 | None => Js.log("Failed to start logger.")
 };

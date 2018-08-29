@@ -37,15 +37,20 @@ module Differ = {
     wrap: int => Message.t,
   };
 
+  type diff = {
+    current_time: int,
+    random_id: string,
+  };
+
   type Message.t +=
-    | Diff(int);
+    | Diff(diff);
 
   let f: Process.f(config) =
     (env, config) => {
       env.recv(
         fun
         | Diff(t) => {
-            let delta = Performance.now() - t;
+            let delta = Performance.now() - t.current_time;
             send(config.send_to, config.wrap(delta));
             env.loop(config);
           }
@@ -78,11 +83,28 @@ module Clock = {
   let start = spawn(clock_f);
 };
 
+trace({
+  matcher: (_pid, message) =>
+    switch (message) {
+    | Differ.Diff(_) => true
+    | _ => false
+    },
+  timeout: 50,
+  handler:
+    fun
+    | Differ.Diff(n) => Js.log({j|Differ got message => $n|j})
+    | _ => (),
+});
+
 switch (where_is("logger")) {
 | Some(pid) =>
   let differ = Differ.start({send_to: pid, wrap: DOMLogger.logInt});
   let _clock =
-    Clock.start({delay: 0, send_to: differ, wrap: x => Differ.Diff(x)});
+    Clock.start({
+      delay: 0,
+      send_to: differ,
+      wrap: x => Differ.Diff({current_time: x, random_id: Random.shortId()}),
+    });
   ();
 | None => Js.log("Failed to start logger.")
 };
