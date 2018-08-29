@@ -1,3 +1,6 @@
+/**
+  A Reasonably-typed Actor-model Library for the Browser.
+ */
 module Node = ReActor_Node;
 module Process = ReActor_Process;
 module Pid = ReActor_Process.Pid;

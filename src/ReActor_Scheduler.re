@@ -14,7 +14,10 @@ let nextPid: t => Pid.t =
   ({id: (node_name, scheduler_id), process_count}) =>
     Pid.make(node_name, scheduler_id, process_count + 1);
 
-let leastBusy: list(ref(t)) => ref(t) = workers => List.nth(workers, 0);
+let byProcessCount = (a, b) => compare(a^.process_count, b^.process_count);
+
+let leastBusy: list(ref(t)) => ref(t) =
+  workers => workers |> List.sort(byProcessCount) |> List.hd;
 
 let pidToSid: Pid.t => sid =
   ((node_name, scheduler_id, _)) => (node_name, scheduler_id);

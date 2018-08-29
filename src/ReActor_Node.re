@@ -1,5 +1,6 @@
 open ReActor_Process;
 open ReActor_Utils;
+open FFI_Runtime;
 
 type t = {
   node_name: string,
@@ -12,7 +13,13 @@ let make: unit => t =
     let node_name = Random.shortId();
     {
       node_name,
-      schedulers: [ref(ReActor_Scheduler.make(node_name))],
+      schedulers: [
+        ref(ReActor_Scheduler.make(node_name)),
+        ...Array.make(hardwareConcurrency - 2, 0)
+           |> Array.to_list
+           |> List.map(_i => ReActor_Scheduler.make(node_name))
+           |> List.map(ref),
+      ],
       registry: ref([]),
     };
   };
