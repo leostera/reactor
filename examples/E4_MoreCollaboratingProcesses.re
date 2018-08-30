@@ -1,6 +1,5 @@
 open ReActor;
 open ReActor_Utils;
-open FFI_Runtime;
 
 module Logger = {
   let __name = "logger";
