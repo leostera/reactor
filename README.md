@@ -1,4 +1,4 @@
-# ReActor 🚀
+# Reactor 🚀
 > A Reasonably-typed Actor-model Library for the Browser
 
 ## Local Setup
