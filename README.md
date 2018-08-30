@@ -1,18 +1,9 @@
-# Basic Reason Template
+# ReActor 🚀
+> A Reasonably-typed Actor-model Library for the Browser
 
-Hello! This project allows you to quickly get started with Reason and BuckleScript. If you wanted a more sophisticated version, try the `react` template (`bsb -theme react -init .`).
+## Local Setup
 
-# Build
-```
-npm run build
-```
+Make sure you have `yarn` installed. Then run `make world` and that'll pull all
+the deps and start the autocompilation.
 
-# Build + Watch
-
-```
-npm run start
-```
-
-
-# Editor
-If you use `vscode`, Press `Windows + Shift + B` it will build automatically
+Run `make serve` to start a tiny static file server to browse the examples.
