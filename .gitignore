@@ -5,3 +5,5 @@ npm-debug.log
 /lib/bs/
 /node_modules/
 spec/*.toolbox
+.tla
+*.zip
