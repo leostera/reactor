@@ -1,5 +1,7 @@
-# Reactor 🚀
+# 🚀 re:actor
 > A Reasonably-typed Actor-model Library for the Browser
+
+**Status**: EXPERIMENT. Not ready to be used anywhere.
 
 ## Local Setup
 
