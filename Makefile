@@ -1,4 +1,7 @@
-.PHONY: deps world docs serve clean cleanall
+.PHONY: deps world docs serve clean cleanall bench test
+
+NODE_BIN=./node_modules/.bin
+BSB=$(NODE_BIN)/bsb
 
 deps:
 	@yarn
@@ -7,14 +10,23 @@ docs:
 	@./scripts/setup-tla-plus.sh
 	@./scripts/tla-to-pdf.sh
 
+build: deps
+	@$(BSB) -make-world
+
 world: deps
-	@./node_modules/.bin/bsb -make-world -w
+	@$(BSB) -make-world -w
+
+bench:
+	@node lib/js/bench/Bench.bs.js
+
+test:
+	@node lib/js/test/Test.bs.js
 
 serve: deps
-	@./node_modules/.bin/static
+	@$(NODE_BIN)/static
 
 clean:
-	@./node_modules/.bin/bsb -clean-world
+	@$(BSB) -clean-world
 
 cleanall: clean
 	@rm -rf node_modules lib
