@@ -1,6 +1,6 @@
 {
-  "name": "reactor",
-  "version": "0.1.0",
+  "name": "@ostera/reactor",
+  "version": "0.0.1-alpha",
   "keywords": [
     "BuckleScript"
   ],
