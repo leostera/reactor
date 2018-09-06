@@ -11,17 +11,17 @@ module DOMLogger = {
     | Log(string);
 
   let logger_f: Process.f(state) =
-    (env, state) => {
-      env.recv(
-        fun
-        | Log(msg) => {
-            DOM.withInnerText(state.node, msg);
-            env.loop(state);
-          }
-        | _ => env.loop(state),
-      );
-      state;
-    };
+    (env, state) =>
+      switch (env.recv()) {
+      | Some(m) =>
+        switch (m) {
+        | Log(msg) =>
+          DOM.withInnerText(state.node, msg);
+          Become(state);
+        | _ => Become(state)
+        }
+      | None => Become(state)
+      };
 
   let dom_logger =
     spawn(logger_f, {node: DOM.getElementById("sample")})
@@ -41,18 +41,18 @@ module Differ = {
     | Diff(int);
 
   let f: Process.f(config) =
-    (env, config) => {
-      env.recv(
-        fun
-        | Diff(t) => {
-            let delta = Performance.now() - t;
-            send(config.send_to, config.wrap(delta));
-            env.loop(config);
-          }
-        | _ => env.loop(config),
-      );
-      config;
-    };
+    (env, config) =>
+      switch (env.recv()) {
+      | Some(m) =>
+        switch (m) {
+        | Diff(t) =>
+          let delta = Performance.now() - t;
+          send(config.send_to, config.wrap(delta));
+          Become(config);
+        | _ => Become(config)
+        }
+      | None => Become(config)
+      };
 
   let start = spawn(f);
 };
@@ -64,15 +64,9 @@ module Clock = {
     wrap: int => Message.t,
   };
   let clock_f: Process.f(config) =
-    (env, config) => {
-      env.sleep(
-        config.delay,
-        () => {
-          send(config.send_to, config.wrap(Performance.now()));
-          env.loop(config);
-        },
-      );
-      config;
+    (_env, config) => {
+      send(config.send_to, config.wrap(Performance.now()));
+      Suspend(config.delay, config);
     };
 
   let start = spawn(clock_f);

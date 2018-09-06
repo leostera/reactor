@@ -10,22 +10,16 @@ let noop: Process.f(sample) =
       let p = env.self() |> Pid.toString;
       Js.log({j|$p got to 2112|j});
     };
-    env.loop({counter: state.counter + 1});
+    Become({counter: state.counter + 1});
   };
 
 let loop_noop: Process.f(sample) =
   (env, state) => {
-    env.sleep(
-      100,
-      () => {
-        let now = Date.now();
-        let counter = state.counter;
-        let pid = Pid.toString(env.self());
-        Js.log({j|$now - $pid - $counter|j});
-        env.loop({counter: state.counter - 1});
-      },
-    );
-    state;
+    let now = Date.now();
+    let counter = state.counter;
+    let pid = Pid.toString(env.self());
+    Js.log({j|$now - $pid - $counter|j});
+    Suspend(100, {counter: state.counter - 1});
   };
 
 let named_slower_pid =

@@ -11,17 +11,17 @@ module DOMLogger = {
     | Log(string);
 
   let logger_f: Process.f(state) =
-    (env, state) => {
-      env.recv(
-        fun
-        | Log(msg) => {
-            DOM.withInnerText(state.node, msg);
-            env.loop(state);
-          }
-        | _ => env.loop(state),
-      );
-      state;
-    };
+    (env, state) =>
+      switch (env.recv()) {
+      | Some(m) =>
+        switch (m) {
+        | Log(msg) =>
+          DOM.withInnerText(state.node, msg);
+          Become(state);
+        | _ => Become(state)
+        }
+      | None => Become(state)
+      };
 
   let dom_logger =
     spawn(logger_f, {node: DOM.getElementById("sample")})
@@ -47,21 +47,21 @@ module Differ = {
     | Diff(diff);
 
   let f: Process.f(config) =
-    (env, config) => {
-      env.recv(
-        fun
-        | Diff(t) => {
-            let delta = Performance.now() - t.current_time;
-            let pid = t.pid |> Pid.toString;
-            let self = env.self() |> Pid.toString;
-            Js.log({j|Received message from: $pid while running on $self|j});
-            send(config.send_to, config.wrap(delta));
-            env.loop(config);
-          }
-        | _ => env.loop(config),
-      );
-      config;
-    };
+    (env, config) =>
+      switch (env.recv()) {
+      | Some(m) =>
+        switch (m) {
+        | Diff(t) =>
+          let delta = Performance.now() - t.current_time;
+          let pid = t.pid |> Pid.toString;
+          let self = env.self() |> Pid.toString;
+          Js.log({j|Received message from: $pid while running on $self|j});
+          send(config.send_to, config.wrap(delta));
+          Become(config);
+        | _ => Become(config)
+        }
+      | None => Become(config)
+      };
 
   let start = spawn(f);
 };
@@ -74,14 +74,8 @@ module Clock = {
   };
   let clock_f: Process.f(config) =
     (env, config) => {
-      env.sleep(
-        config.delay,
-        () => {
-          send(config.send_to, config.wrap(env.self(), Performance.now()));
-          env.loop(config);
-        },
-      );
-      config;
+      send(config.send_to, config.wrap(env.self(), Performance.now()));
+      Suspend(config.delay, config);
     };
 
   let start = spawn(clock_f);
