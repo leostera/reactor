@@ -7,6 +7,8 @@
   folk call an Actor.
 
   */
+open FFI_Runtime;
+
 module Message = {
   /**
     The Message type. All messages within [ReActor] are data of this type.
@@ -53,6 +55,11 @@ module Status = {
     | Dead => "dead";
 };
 
+type behavior('s) =
+  | Become('s)
+  | Suspend(int, 's)
+  | Terminate;
+
 /**
   The environment type.
 
@@ -70,17 +77,15 @@ module Status = {
   will await for a message to arrive before continuing.
   */
 type env('s) = {
-  loop: 's => 's,
   self: unit => Pid.t,
-  sleep: (int, unit => 's) => unit,
-  recv: (Message.t => 's) => unit,
+  recv: unit => option(Message.t),
 };
 
 /**
   The type of a [process] function. It receives an environment and a given
   state.
   */
-type f('s) = (env('s), 's) => 's;
+type f('s) = (env('s), 's) => behavior('s);
 
 /**
   The Process type.
@@ -106,23 +111,21 @@ let send: ('m, t) => unit =
     ();
   };
 
-let rec recv: (t, Message.t => 's) => unit =
-  (process, f) =>
-    FFI_Runtime.nextTick(() =>
-      switch (process.mailbox^) {
-      | [] => recv(process, f)
-      | [message, ...mailbox'] =>
-        let _ = f(message);
-        process.mailbox := mailbox';
-      }
-    );
+let rec recv: (t, unit) => option(Message.t) =
+  (process, ()) =>
+    switch (process.mailbox^) {
+    | [] => None
+    | [message, ...mailbox'] =>
+      process.mailbox := mailbox';
+      Some(message);
+    };
 
 /**
   Create a brand new process and begin executing it's main function.
 
   Given a [pid] and a function [f], a new [process] will be created with an
   empty [mailbox]; alongside it, an environment [env] will be created that will
-  have access to the [pid] and the [mailbox].
+  have access to the [pid] and the processes' [mailbox].
 
   A process is never recreated when using [loop], [recv], or [sleep], and it
   will continue to maintain it's identify ([pid]) until it is marked as [Dead].
@@ -134,21 +137,12 @@ let make: (Pid.t, f('s), 's) => t =
   (pid, f, initial_args) => {
     let process = {pid, status: ref(Status.Alive), mailbox: ref([])};
     let rec run = args =>
-      switch (process.status^) {
-      | Alive =>
-        let _ = f(env, args);
-        ();
-      | Dead => ()
+      switch (f(env, args)) {
+      | Terminate => process.status := Dead
+      | Suspend(delay, newState) => defer(() => run(newState), delay)
+      | Become(newState) => nextTick(() => run(newState))
       }
-    and env = {
-      self: () => pid,
-      recv: recv(process),
-      sleep: (ms, g) => FFI_Runtime.defer(() => g(), ms),
-      loop: args => {
-        FFI_Runtime.nextTick(() => run(args));
-        args;
-      },
-    };
+    and env = {self: () => pid, recv: recv(process)};
     let _ = run(initial_args);
     process;
   };

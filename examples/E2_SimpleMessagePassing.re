@@ -11,15 +11,16 @@ type Message.t +=
 
 let logger_f: Process.f(string) =
   (env, prefix) => {
-    env.recv(m => {
+    switch (env.recv()) {
+    | Some(m) =>
       let now = Date.now();
       switch (m) {
       | Log(n) => Js.log({j|$prefix - $now - $n|j})
       | _ => ()
       };
-      env.loop(prefix);
-    });
-    prefix;
+    | None => ()
+    };
+    Become(prefix);
   };
 
 let logger = spawn(logger_f, "Default =>") |> register("logger");

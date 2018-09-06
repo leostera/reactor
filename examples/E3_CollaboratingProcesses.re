@@ -9,17 +9,17 @@ module Logger = {
 
   let logger_f: Process.f(string) =
     (env, prefix) => {
-      env.recv(m => {
-        let now = Performance.now();
+      switch (env.recv()) {
+      | Some(m) =>
         switch (m) {
         | Log(n) =>
-          let diff = now - n;
+          let diff = Performance.now() - n;
           Js.log({j|$prefix - $n (took $diff ms)|j});
         | _ => ()
-        };
-        env.loop(prefix);
-      });
-      prefix;
+        }
+      | None => ()
+      };
+      Become(prefix);
     };
 
   let logger = spawn(logger_f, "Default =>") |> register(__name);
@@ -34,15 +34,9 @@ module Clock = {
     send_to: Pid.t,
   };
   let clock_f: Process.f(config) =
-    (env, state) => {
-      env.sleep(
-        state.delay,
-        () => {
-          send(state.send_to, Logger.Log(Performance.now()));
-          env.loop(state);
-        },
-      );
-      state;
+    (_env, state) => {
+      send(state.send_to, Logger.Log(Performance.now()));
+      Suspend(state.delay, state);
     };
 
   let start = spawn(clock_f);

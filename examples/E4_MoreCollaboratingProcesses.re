@@ -8,17 +8,17 @@ module Logger = {
     | Log(int);
 
   let logger_f: Process.f(string) =
-    (env, prefix) => {
-      env.recv(
-        fun
-        | Log(n) => {
-            Js.log({j|$prefix$n|j});
-            env.loop(prefix);
-          }
-        | _ => env.loop(prefix),
-      );
-      prefix;
-    };
+    (env, prefix) =>
+      switch (env.recv()) {
+      | Some(m) =>
+        switch (m) {
+        | Log(n) =>
+          Js.log({j|$prefix$n|j});
+          Become(prefix);
+        | _ => Become(prefix)
+        }
+      | None => Become(prefix)
+      };
 
   let logger = spawn(logger_f, "Default => ") |> register(__name);
 };
@@ -33,18 +33,18 @@ module Differ = {
     | Diff(int);
 
   let f: Process.f(config) =
-    (env, config) => {
-      env.recv(
-        fun
-        | Diff(t) => {
-            let delta = Performance.now() - t;
-            send(config.send_to, config.wrap(delta));
-            env.loop(config);
-          }
-        | _ => env.loop(config),
-      );
-      config;
-    };
+    (env, config) =>
+      switch (env.recv()) {
+      | Some(m) =>
+        switch (m) {
+        | Diff(t) =>
+          let delta = Performance.now() - t;
+          send(config.send_to, config.wrap(delta));
+          Become(config);
+        | _ => Become(config)
+        }
+      | None => Become(config)
+      };
 
   let start = spawn(f);
 };
@@ -56,15 +56,9 @@ module Clock = {
     wrap: int => Message.t,
   };
   let clock_f: Process.f(config) =
-    (env, config) => {
-      env.sleep(
-        config.delay,
-        () => {
-          send(config.send_to, config.wrap(Performance.now()));
-          env.loop(config);
-        },
-      );
-      config;
+    (_env, config) => {
+      send(config.send_to, config.wrap(Performance.now()));
+      Become(config);
     };
 
   let start = spawn(clock_f);
