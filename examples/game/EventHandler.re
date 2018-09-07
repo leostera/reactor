@@ -5,7 +5,7 @@ open Game_FFI;
 let name = "input_handler";
 
 type Message.t +=
-  | Event(Event.event)
+  | Event(Event.data)
   | Subscribe(Event.kind, Pid.t)
   | Unsubscribe(Event.kind, Pid.t);
 
@@ -16,35 +16,43 @@ type state = {
 };
 
 /** Find the subscribers for the given event name, and forward the event to them */
-let fanout = (subs, event) =>
-  switch (subs |> Event.Map.find(Event.kind(event))) {
+let fanout = (subs, event) => {
+  Event.preventDefault(event);
+  let kind = Event.kind(event);
+  switch (Event.Map.find(kind, subs)) {
   | exception Not_found => ()
-  | pids => pids |> List.iter(pid => send(pid, Event(event)))
+  | pids => pids |> List.iter(pid => send(pid, Event(Event.data(event))))
   };
+};
 
 let subscribe = (event_name, pid, subs) => {
-  let pids' = [pid, ...Event.Map.find(event_name, subs)];
-  let subs' =
-    subs |> Event.Map.remove(event_name) |> Event.Map.add(event_name, pids');
-  subs';
+  let pids =
+    switch (Event.Map.find(event_name, subs)) {
+    | exception Not_found => []
+    | x => x
+    };
+  let pids' = [pid, ...pids];
+  subs |> Event.Map.remove(event_name) |> Event.Map.add(event_name, pids');
 };
 
 let unsubscribe = (event_name, pid, subs) => {
-  let pids = subs |> Event.Map.find(event_name);
+  let pids =
+    switch (Event.Map.find(event_name, subs)) {
+    | exception Not_found => []
+    | x => x
+    };
   let pids' = pids |> List.filter(p => p == pid);
-  let subs' =
-    subs |> Event.Map.remove(event_name) |> Event.Map.add(event_name, pids');
-  subs';
+  subs |> Event.Map.remove(event_name) |> Event.Map.add(event_name, pids');
 };
 
 let setupHandlers = (event_name, node, handlers, subs) => {
   let handler' = fanout(subs);
   let handlers' =
-    switch (handlers |> Event.Map.find(event_name)) {
+    switch (Event.Map.find(event_name, handlers)) {
+    | exception Not_found => handlers
     | handler =>
       node |> DOM.off(event_name, handler) |> ignore;
       handlers |> Event.Map.remove(event_name);
-    | exception Not_found => handlers
     };
   node |> DOM.on(event_name, handler') |> ignore;
   handlers' |> Event.Map.add(event_name, handler');
@@ -71,17 +79,11 @@ let handleMessage = state =>
 let loop: Process.f(state) =
   (env, state) => env.recv() >>| handleMessage(state) <|> Become(state);
 
-let setup: Process.f(state) =
-  (env, {node, handlers, subscribers}) => {
-    let handlers' = setupHandlers(Event.Click, node, handlers, subscribers);
-    loop(env, {node, subscribers, handlers: handlers'});
-  };
-
-let start = nodeId => {
+let start = () => {
   let initialState = {
-    node: DOM.elementById(nodeId),
+    node: DOM.window,
     handlers: Event.Map.empty,
     subscribers: Event.Map.empty,
   };
-  spawn(setup, initialState) |> register(name);
+  spawn(loop, initialState) |> register(name);
 };

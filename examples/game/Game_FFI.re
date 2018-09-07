@@ -1,34 +1,95 @@
+module Viewport = {
+  [@bs.deriving abstract]
+  type t = {
+    height: int,
+    width: int,
+  };
+
+  [@bs.val] [@bs.scope "window"]
+  external __unsafe_visualViewport: t = "visualViewport";
+
+  let width = () => __unsafe_visualViewport |> widthGet;
+
+  let height = () => __unsafe_visualViewport |> heightGet;
+};
+
 module Event = {
   /** Abstract event type */
   [@bs.deriving abstract]
   type event = {
     [@bs.as "type"]
     _type: string,
+    screenX: int,
+    screenY: int,
+    [@bs.as "key"]
+    keyName: string,
+    keyCode: int,
   };
+
+  /** FFI to preventDefault */
+  [@bs.send]
+  external __unsafe_preventDefault: event => unit = "preventDefault";
+  let preventDefault = __unsafe_preventDefault;
 
   type handler = event => unit;
 
+  type data =
+    | NoData
+    | KeyDownData(string, int)
+    | ClickData(int, int)
+    | MouseMoveData(int, int)
+    | ResizeData(int, int);
+
   type kind =
+    | Unknown
+    | KeyDown
+    | Resize
     | Click
     | MouseMove;
 
-  let kind: event => kind = event => Click;
-
   let toString =
     fun
+    | Unknown => "unknown"
+    | KeyDown => "keydown"
+    | Resize => "resize"
     | Click => "click"
     | MouseMove => "mousemove";
+
+  let fromString =
+    fun
+    | "click" => Click
+    | "mousemove" => MouseMove
+    | "resize" => Resize
+    | "keydown" => KeyDown
+    | _ => Unknown;
 
   module Map =
     Map.Make({
       type t = kind;
       let compare = (a, b) => String.compare(toString(a), toString(b));
     });
+
+  let kind: event => kind = e => _typeGet(e) |> fromString;
+
+  let data = event =>
+    switch (kind(event)) {
+    | Resize => ResizeData(Viewport.width(), Viewport.height())
+    | Click => ClickData(screenXGet(event), screenYGet(event))
+    | MouseMove => MouseMoveData(screenXGet(event), screenYGet(event))
+    | KeyDown => KeyDownData(keyNameGet(event), keyCodeGet(event))
+    | Unknown => NoData
+    };
 };
 
 module DOM = {
   /** Abstract type for getting an element */
   type node;
+
+  [@bs.val] external __unsafe_document: node = "document";
+  let document = __unsafe_document;
+
+  [@bs.val] external __unsafe_window: node = "window";
+  let window = __unsafe_window;
 
   /** FFI to a DOM element */
   [@bs.val] [@bs.scope "document"]

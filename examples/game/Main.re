@@ -4,6 +4,8 @@ open ReActor;
 open Game_FFI;
 
 module Renderer = {
+  let name = "renderer";
+
   type Message.t +=
     | Paint(Canvas.shape, Canvas.color);
 
@@ -28,9 +30,11 @@ module Renderer = {
       fpsCap: 30,
       canvas: DOM.elementById("game") |> Canvas.get2dContext,
     };
-    spawn(loop, initialState) |> register("renderer");
+    spawn(loop, initialState) |> register(name);
   };
 };
+
+module Pointer = {};
 
 module Scene = {
   type state = {
@@ -39,33 +43,78 @@ module Scene = {
     surface: Canvas.shape,
   };
 
+  let repaint = (surface, color) =>
+    where_is(Renderer.name)
+    >>| (pid => send(pid, Renderer.Paint(surface, color)))
+    |> ignore;
+
+  let events = Event.[Click, MouseMove, KeyDown, Resize];
+
+  let registerEvents = self =>
+    where_is(EventHandler.name)
+    >>| (
+      pid =>
+        events
+        |> List.map(e => EventHandler.Subscribe(e, self))
+        |> List.iter(send(pid))
+    )
+    |> ignore;
+
   let setup: Process.f(state) =
-    (_env, state) =>
-      state.started ?
-        Process.Become(state) :
-        (
-          switch (where_is("renderer")) {
-          | None => Process.Terminate
-          | Some(renderer) =>
-            send(renderer, Renderer.Paint(state.surface, state.color));
-            Process.Become({...state, started: true});
-          }
-        );
+    (env, state) => {
+      repaint(state.surface, state.color);
+      registerEvents(env.self());
+      Process.Become({...state, started: true});
+    };
+
+  let handleEvent = state =>
+    fun
+    | Event.KeyDownData(keyName, keyCode) => {
+        Js.log3("key down", keyName, keyCode);
+        Process.Become(state);
+      }
+    | Event.MouseMoveData(x, y) => {
+        Js.log3("mouse move at", x, y);
+        Process.Become(state);
+      }
+    | Event.ClickData(x, y) => {
+        Js.log3("click at", x, y);
+        Process.Become(state);
+      }
+    | Event.ResizeData(w, h) => {
+        let state' = {...state, surface: Canvas.Rect(0, 0, w, h)};
+        repaint(state'.surface, state'.color);
+        Process.Become(state');
+      }
+    | Event.NoData => Process.Become(state);
+
+  let handleMessage = state =>
+    fun
+    | EventHandler.Event(e) => handleEvent(state, e)
+    | _ => Process.Become(state);
+
+  let loop: Process.f(state) =
+    (env, state) =>
+      if (!state.started) {
+        setup(env, state);
+      } else {
+        env.recv() >>| handleMessage(state) <|> Become(state);
+      };
 
   let start = () =>
     spawn(
-      setup,
+      loop,
       {
         started: false,
         color: Canvas.Hex(0x36454f),
-        surface: Canvas.Rect(0, 0, 500, 500),
+        surface: Canvas.Rect(0, 0, Viewport.width(), Viewport.height()),
       },
     );
 };
 
 module Game = {
   let start = () => {
-    let _input = Game_InputHandler.start("screen");
+    let _input = EventHandler.start();
     let _renderer = Renderer.start();
     let _scene = Scene.start();
     ();
