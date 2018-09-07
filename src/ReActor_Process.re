@@ -138,6 +138,9 @@ let make: (Pid.t, f('s), 's) => t =
     let process = {pid, status: ref(Status.Alive), mailbox: ref([])};
     let rec run = args =>
       switch (f(env, args)) {
+      | exception ex =>
+        Js.log({j|Process Terminated: $process threw $ex|j});
+        process.status := Dead;
       | Terminate => process.status := Dead
       | Suspend(delay, newState) => defer(() => run(newState), delay)
       | Become(newState) => nextTick(() => run(newState))
