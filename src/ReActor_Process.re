@@ -57,6 +57,7 @@ module Status = {
 
 type behavior('s) =
   | Become('s)
+  | OnAnimationFrame('s)
   | Suspend(int, 's)
   | Terminate;
 
@@ -142,6 +143,7 @@ let make: (Pid.t, f('s), 's) => t =
         Js.log({j|Process Terminated: $process threw $ex|j});
         process.status := Dead;
       | Terminate => process.status := Dead
+      | OnAnimationFrame(newState) => onAnimationFrame(() => run(newState))
       | Suspend(delay, newState) => defer(() => run(newState), delay)
       | Become(newState) => nextTick(() => run(newState))
       }

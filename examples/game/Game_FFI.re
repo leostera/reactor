@@ -91,6 +91,11 @@ module DOM = {
   [@bs.val] external __unsafe_window: node = "window";
   let window = __unsafe_window;
 
+  /** FFI to create DOM element */
+  [@bs.val] [@bs.scope "document"]
+  external __unsafe_createElement: string => node = "createElement";
+  let createElement = __unsafe_createElement;
+
   /** FFI to a DOM element */
   [@bs.val] [@bs.scope "document"]
   external __unsafe_getElementById: string => node = "getElementById";
@@ -116,12 +121,25 @@ module DOM = {
 };
 
 module Canvas = {
+  /** Abstract type for a canvas */
+  type canvas;
+
+  /** FFI to a Canvas */
+  [@bs.val] [@bs.scope "document"]
+  external __unsafe_createCanvas: ([@bs.as "canvas"] _, unit) => canvas =
+    "createElement";
+  let create = __unsafe_createCanvas;
+
   /** Abstract type for a canvas context */
   type context;
+
   /** FFI to a Canvas Context */
   [@bs.send]
-  external __unsafe_getContext: (DOM.node, string) => context = "getContext";
+  external __unsafe_getContext: ('t, string) => context = "getContext";
   let get2dContext = node => __unsafe_getContext(node, "2d");
+
+  type point =
+    | Point2D(int, int);
 
   /** Rect Type */
   type shape =
@@ -151,4 +169,22 @@ module Canvas = {
     __unsafe_fillRect(canvas, x, y, w, h);
     canvas;
   };
+
+  /** FFI to draw text with a color */;
+  [@bs.set] external __unsafe_font: (context, string) => unit = "font";
+  [@bs.send]
+  external __unsafe_fillText: (context, string, int, int) => unit = "fillText";
+
+  let fillText = (canvas, text, Point2D(x, y), color) => {
+    __unsafe_fillStyle(canvas, color |> colorToString);
+    __unsafe_font(canvas, "12px Helvetica");
+    __unsafe_fillText(canvas, text, x, y);
+    canvas;
+  };
+
+  [@bs.send]
+  external __unsafe_drawImage: (context, canvas, int, int) => unit =
+    "drawImage";
+  let drawImage = (canvas, context, Point2D(x, y)) =>
+    __unsafe_drawImage(context, canvas, x, y);
 };

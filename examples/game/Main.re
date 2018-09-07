@@ -3,39 +3,6 @@ open Option;
 open ReActor;
 open Game_FFI;
 
-module Renderer = {
-  let name = "renderer";
-
-  type Message.t +=
-    | Paint(Canvas.shape, Canvas.color);
-
-  type t = {
-    fpsCap: int,
-    canvas: Canvas.context,
-  };
-
-  let handleMessage = (state, message) =>
-    switch (message) {
-    | Paint(shape, color) =>
-      let _ = Canvas.fillRect(state.canvas, shape, color);
-      Process.Become(state);
-    | _ => Process.Become(state)
-    };
-
-  let loop: Process.f(t) =
-    (env, state) => env.recv() >>| handleMessage(state) <|> Become(state);
-
-  let start = () => {
-    let initialState = {
-      fpsCap: 30,
-      canvas: DOM.elementById("game") |> Canvas.get2dContext,
-    };
-    spawn(loop, initialState) |> register(name);
-  };
-};
-
-module Pointer = {};
-
 module Scene = {
   type state = {
     started: bool,
@@ -44,8 +11,8 @@ module Scene = {
   };
 
   let repaint = (surface, color) =>
-    where_is(Renderer.name)
-    >>| (pid => send(pid, Renderer.Paint(surface, color)))
+    where_is(Game_Renderer.name)
+    >>| (pid => send(pid, Game_Renderer.Paint(surface, color)))
     |> ignore;
 
   let events = Event.[Click, MouseMove, KeyDown, Resize];
@@ -69,19 +36,23 @@ module Scene = {
 
   let handleEvent = state =>
     fun
-    | Event.KeyDownData(keyName, keyCode) => {
+    | Event.KeyDownData(keyName, keyCode) as e => {
+        Game_DebugInfo.report(e);
         Js.log3("key down", keyName, keyCode);
         Process.Become(state);
       }
-    | Event.MouseMoveData(x, y) => {
+    | Event.MouseMoveData(x, y) as e => {
+        Game_DebugInfo.report(e);
         Js.log3("mouse move at", x, y);
         Process.Become(state);
       }
-    | Event.ClickData(x, y) => {
+    | Event.ClickData(x, y) as e => {
+        Game_DebugInfo.report(e);
         Js.log3("click at", x, y);
         Process.Become(state);
       }
-    | Event.ResizeData(w, h) => {
+    | Event.ResizeData(w, h) as e => {
+        Game_DebugInfo.report(e);
         let state' = {...state, surface: Canvas.Rect(0, 0, w, h)};
         repaint(state'.surface, state'.color);
         Process.Become(state');
@@ -114,8 +85,9 @@ module Scene = {
 
 module Game = {
   let start = () => {
+    let _debugInfo = Game_DebugInfo.start();
     let _input = EventHandler.start();
-    let _renderer = Renderer.start();
+    let _renderer = Game_Renderer.start();
     let _scene = Scene.start();
     ();
   };
