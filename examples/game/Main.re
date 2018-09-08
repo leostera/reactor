@@ -4,9 +4,70 @@ open ReActor;
 open ReActor_Utils;
 open Game_FFI;
 
-module Scene = {
+module Cursor = {
+  type status =
+    | Click
+    | Normal;
+
   type state = {
-    started: bool,
+    x: int,
+    y: int,
+    status,
+  };
+
+  type Message.t +=
+    | Move(int, int)
+    | Click(int, int);
+
+  let handleMessage = (state, message) =>
+    switch (message) {
+    | Move(x, y) => {x, y, status: Normal}
+    | Click(x, y) => {x, y, status: Click}
+    | _ => state
+    };
+
+  let render = ({x, y}) =>
+    whereIs(Game_Renderer.name)
+    >>| (
+      pid =>
+        send(
+          pid,
+          Game_Renderer.(
+            Pipeline([
+              DrawCircle(
+                Point2D(x, y),
+                10,
+                Canvas.RGBA(255, 255, 255, 0.7),
+              ),
+            ])
+          ),
+        )
+    )
+    |> ignore;
+
+  let loop: Process.f(state) =
+    (env, state) => {
+      let state' = env.recv() >>| handleMessage(state) <|> state;
+
+      switch (state'.status) {
+      | Click => render(state')
+      | _ => ()
+      };
+
+      Become(state');
+    };
+
+  let start = () => spawn(loop, {x: 0, y: 0, status: Normal});
+};
+
+module Scene = {
+  type status =
+    | ShouldSetup
+    | Started;
+
+  type state = {
+    status,
+    cursor: Pid.t,
     color: Canvas.color,
     surface: Canvas.shape,
   };
@@ -34,33 +95,25 @@ module Scene = {
     (env, state) => {
       repaint(state.surface, state.color);
       registerEvents(env.self());
-      Process.Become({...state, started: true});
+      Process.Become({...state, status: Started});
     };
 
-  let handleEvent = state =>
-    fun
-    | Event.KeyDownData(keyName, keyCode) as e => {
-        Game_DebugInfo.report(e);
-        Js.log3("key down", keyName, keyCode);
-        Process.Become(state);
-      }
-    | Event.MouseMoveData(x, y) as e => {
-        Game_DebugInfo.report(e);
-        Js.log3("mouse move at", x, y);
-        Process.Become(state);
-      }
-    | Event.ClickData(x, y) as e => {
-        Game_DebugInfo.report(e);
-        Js.log3("click at", x, y);
-        Process.Become(state);
-      }
-    | Event.ResizeData(w, h) as e => {
-        Game_DebugInfo.report(e);
-        let state' = {...state, surface: Canvas.Rect(0, 0, w, h)};
-        repaint(state'.surface, state'.color);
-        Process.Become(state');
-      }
-    | Event.NoData => Process.Become(state);
+  let handleEvent = (state, event) => {
+    Game_DebugInfo.report(event);
+    switch (event) {
+    | Event.ResizeData(w, h) =>
+      let state' = {...state, surface: Canvas.Rect(0, 0, w, h)};
+      repaint(state'.surface, state'.color);
+      Process.Become(state');
+    | Event.MouseMoveData(x, y) =>
+      send(state.cursor, Cursor.Move(x, y));
+      Process.Become(state);
+    | Event.ClickData(x, y) =>
+      send(state.cursor, Cursor.Click(x, y));
+      Process.Become(state);
+    | _ => Process.Become(state)
+    };
+  };
 
   let handleMessage = state =>
     fun
@@ -69,17 +122,17 @@ module Scene = {
 
   let loop: Process.f(state) =
     (env, state) =>
-      if (!state.started) {
-        setup(env, state);
-      } else {
-        env.recv() >>| handleMessage(state) <|> Become(state);
+      switch (state.status) {
+      | ShouldSetup => setup(env, state)
+      | _ => env.recv() >>| handleMessage(state) <|> Become(state)
       };
 
   let start = () =>
     spawn(
       loop,
       {
-        started: false,
+        status: ShouldSetup,
+        cursor: Cursor.start(),
         color: Canvas.Hex(0x36454f),
         surface: Canvas.Rect(0, 0, Viewport.width(), Viewport.height()),
       },

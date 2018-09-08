@@ -138,12 +138,18 @@ module Canvas = {
   external __unsafe_getContext: ('t, string) => context = "getContext";
   let get2dContext = node => __unsafe_getContext(node, "2d");
 
+  /** Point type */
   type point =
     | Point2D(int, int);
 
   /** Rect Type */
   type shape =
     | Rect(int, int, int, int);
+
+  /** Clockwise-ity */
+  type angular_direction =
+    | Clockwise
+    | CounterClockwise;
 
   /** Color Type */
   type color =
@@ -160,12 +166,16 @@ module Canvas = {
   /** FFI to fill in a shape with a color */;
   [@bs.set]
   external __unsafe_fillStyle: (context, string) => unit = "fillStyle";
+  let fillStyle = (canvas, color) =>
+    __unsafe_fillStyle(canvas, color |> colorToString);
+
+  /** FFI to fill in a shape with a color */;
   [@bs.send]
   external __unsafe_fillRect: (context, int, int, int, int) => unit =
     "fillRect";
 
   let fillRect = (canvas, Rect(x, y, w, h), color) => {
-    __unsafe_fillStyle(canvas, color |> colorToString);
+    fillStyle(canvas, color);
     __unsafe_fillRect(canvas, x, y, w, h);
     canvas;
   };
@@ -174,9 +184,8 @@ module Canvas = {
   [@bs.set] external __unsafe_font: (context, string) => unit = "font";
   [@bs.send]
   external __unsafe_fillText: (context, string, int, int) => unit = "fillText";
-
   let fillText = (canvas, text, Point2D(x, y), color) => {
-    __unsafe_fillStyle(canvas, color |> colorToString);
+    fillStyle(canvas, color);
     __unsafe_font(canvas, "12px Helvetica");
     __unsafe_fillText(canvas, text, x, y);
     canvas;
@@ -187,4 +196,22 @@ module Canvas = {
     "drawImage";
   let drawImage = (canvas, context, Point2D(x, y)) =>
     __unsafe_drawImage(context, canvas, x, y);
+
+  [@bs.send] external __unsafe_beginPath: context => unit = "beginPath";
+  let beginPath = __unsafe_beginPath;
+
+  [@bs.send] external __unsafe_fill: context => unit = "fill";
+  let fill = __unsafe_fill;
+
+  [@bs.send]
+  external __unsafe_arc: (context, int, int, int, float, float, bool) => unit =
+    "arc";
+  let arc = (context, Point2D(x, y), radius, beginAngle, endAngle, direction) => {
+    let direction' =
+      switch (direction) {
+      | Clockwise => false
+      | CounterClockwise => true
+      };
+    __unsafe_arc(context, x, y, radius, beginAngle, endAngle, direction');
+  };
 };

@@ -6,6 +6,7 @@ let name = "renderer";
 
 type ops =
   | Fill(Canvas.color)
+  | DrawCircle(Canvas.point, int, Canvas.color)
   | DrawText(string, Canvas.point, Canvas.color)
   | DrawRect(Canvas.shape, Canvas.color);
 
@@ -33,6 +34,21 @@ let paint = state =>
           Canvas.Rect(0, 0, Viewport.width(), Viewport.height()),
           Canvas.Hex(0x36454f),
         );
+      ();
+    }
+  | DrawCircle(origin, radius, color) => {
+      let _ = Canvas.beginPath(state.buffer_ctx);
+      let _ =
+        Canvas.arc(
+          state.buffer_ctx,
+          origin,
+          radius,
+          0.0,
+          6.283185307179586,
+          Canvas.Clockwise,
+        );
+      let _ = Canvas.fillStyle(state.buffer_ctx, color);
+      let _ = Canvas.fill(state.buffer_ctx);
       ();
     }
   | DrawText(text, origin, color) => {
