@@ -12,7 +12,9 @@ module Scene = {
 
   let repaint = (surface, color) =>
     where_is(Game_Renderer.name)
-    >>| (pid => send(pid, Game_Renderer.Paint(surface, color)))
+    >>| (
+      pid => send(pid, Game_Renderer.(Pipeline([DrawRect(surface, color)])))
+    )
     |> ignore;
 
   let events = Event.[Click, MouseMove, KeyDown, Resize];

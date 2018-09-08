@@ -11,8 +11,7 @@ type ops =
 
 type Message.t +=
   | Pipeline(list(ops))
-  | Flush
-  | Paint(Canvas.shape, Canvas.color);
+  | Flush;
 
 type status =
   | Flushed
@@ -47,9 +46,6 @@ let paint = state =>
 
 let handleMessage = (state, message) =>
   switch (message) {
-  | Paint(shape, color) =>
-    let _ = Canvas.fillRect(state.buffer_ctx, shape, color);
-    Process.Become(state);
   | Flush =>
     switch (state.status) {
     | CanFlush =>
