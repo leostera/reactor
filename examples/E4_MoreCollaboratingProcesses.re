@@ -64,7 +64,7 @@ module Clock = {
   let start = spawn(clock_f);
 };
 
-switch (where_is("logger")) {
+switch (whereIs("logger")) {
 | Some(pid) =>
   Array.make(10, 0)
   |> Array.iter(_i => {

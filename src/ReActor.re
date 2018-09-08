@@ -61,7 +61,7 @@ let exit = ReActor_Node.exit(__main);
   Registers a [pid] under a given [name] in this [node].
 
   Multiple processes might be registered under the same [name] but only the
-  first one will be retrieved when searching for it with `[where_is]`.
+  first one will be retrieved when searching for it with `[whereIs]`.
   */
 let register = ReActor_Node.register(__main);
 
@@ -74,7 +74,7 @@ let register = ReActor_Node.register(__main);
   Returns None if no process was found, or Some([Pid.t]) if some process was
   found.
   */
-let where_is = ReActor_Node.where_is(__main);
+let whereIs = ReActor_Node.whereIs(__main);
 
 /**
   Sending messages to processes is a core functionality of [ReActor]. It's the

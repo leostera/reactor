@@ -49,7 +49,7 @@ let render = state => {
       DrawText({j|Move: $lastMouseMove|j}, Point2D(10, 40), color),
       DrawText({j|Screen: $lastScreenSize|j}, Point2D(10, 50), color),
     ];
-  where_is(Game_Renderer.name)
+  whereIs(Game_Renderer.name)
   >>| (pid => send(pid, Game_Renderer.Pipeline(ops)))
   |> ignore;
 };
@@ -62,7 +62,7 @@ let loop: Process.f(state) =
   };
 
 let report = e =>
-  where_is(debugInfo) >>| (pid => send(pid, Status(e))) |> ignore;
+  whereIs(debugInfo) >>| (pid => send(pid, Status(e))) |> ignore;
 
 let start = () =>
   spawn(

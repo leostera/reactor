@@ -42,7 +42,7 @@ module Clock = {
   let start = spawn(clock_f);
 };
 
-switch (where_is("logger")) {
+switch (whereIs("logger")) {
 | Some(pid) =>
   let _ = Clock.start({delay: 0, send_to: pid});
   ();

@@ -77,7 +77,7 @@ let register: (t, string, Pid.t) => Pid.t =
 /**
   Lookup the [name] in the [node] registry. Returns a [Pid.t] if it found one.
   */
-let where_is: (t, string) => option(Pid.t) =
+let whereIs: (t, string) => option(Pid.t) =
   (node, name) => {
     let byName = List.find(((name', _pid)) => name == name');
     switch (node.registry^ |> byName) {

@@ -83,7 +83,7 @@ module Clock = {
   let start = spawn(clock_f);
 };
 
-switch (where_is("logger")) {
+switch (whereIs("logger")) {
 | Some(pid) =>
   let differ = Differ.start({send_to: pid, wrap: ReactLogger.logInt});
   let _clock =

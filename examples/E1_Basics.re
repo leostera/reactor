@@ -41,7 +41,7 @@ defer(
 );
 defer(
   () =>
-    switch (where_is("slower_pid")) {
+    switch (whereIs("slower_pid")) {
     | None => Js.log("Could not find pid \"slower_pid\"")
     | Some(pid) =>
       let p = pid |> Pid.toString;

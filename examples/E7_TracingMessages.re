@@ -94,7 +94,7 @@ trace({
     | _ => (),
 });
 
-switch (where_is("logger")) {
+switch (whereIs("logger")) {
 | Some(pid) =>
   let differ = Differ.start({send_to: pid, wrap: DOMLogger.logInt});
   let _clock =
