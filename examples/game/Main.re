@@ -1,6 +1,7 @@
 open Option;
 
 open ReActor;
+open ReActor_Utils;
 open Game_FFI;
 
 module Scene = {
@@ -98,7 +99,7 @@ module Game = {
 trace({
   matcher: (_pid, _message) => true,
   timeout: 5_000_000_000,
-  handler: Js.log,
+  handler: e => Js.log2(Date.now(), e),
 });
 
 Game.start();

@@ -8,6 +8,7 @@ type Message.t +=
   | Status(Event.data);
 
 type state = {
+  shouldUpdate: bool,
   lastKeyName: option(string),
   lastKeyCode: option(int),
   lastMouseClick: option((int, int)),
@@ -21,12 +22,25 @@ let handleMessage = state =>
     switch (data) {
     | Event.KeyDownData(keyName, keyCode) => {
         ...state,
+        shouldUpdate: true,
         lastKeyName: Some(keyName),
         lastKeyCode: Some(keyCode),
       }
-    | Event.MouseMoveData(x, y) => {...state, lastMouseMove: Some((x, y))}
-    | Event.ClickData(x, y) => {...state, lastMouseClick: Some((x, y))}
-    | Event.ResizeData(w, h) => {...state, lastScreenSize: Some((w, h))}
+    | Event.MouseMoveData(x, y) => {
+        ...state,
+        shouldUpdate: true,
+        lastMouseMove: Some((x, y)),
+      }
+    | Event.ClickData(x, y) => {
+        ...state,
+        shouldUpdate: true,
+        lastMouseClick: Some((x, y)),
+      }
+    | Event.ResizeData(w, h) => {
+        ...state,
+        shouldUpdate: true,
+        lastScreenSize: Some((w, h)),
+      }
     | Event.NoData => state
     }
   | _ => state;
@@ -57,8 +71,8 @@ let render = state => {
 let loop: Process.f(state) =
   (env, state) => {
     let state' = env.recv() >>| handleMessage(state) <|> state;
-    render(state');
-    Suspend(16, state');
+    state'.shouldUpdate ? render(state') : ();
+    Become({...state', shouldUpdate: false});
   };
 
 let report = e =>
@@ -68,6 +82,7 @@ let start = () =>
   spawn(
     loop,
     {
+      shouldUpdate: true,
       lastKeyName: None,
       lastKeyCode: None,
       lastMouseClick: None,
