@@ -96,6 +96,7 @@ let whereIs = ReActor_Node.whereIs(__main);
   [0] https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
  */
 let send = ReActor_Node.send(__main);
+let (<-) = send;
 
 /**
   Sets up a given [tracer] on the current node.
