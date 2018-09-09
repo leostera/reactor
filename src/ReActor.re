@@ -26,6 +26,7 @@
   - Elixir (https://elixir-lang.org/)
 
  */
+module Runtime = ReActor_Runtime;
 module Node = ReActor_Node;
 
 module Scheduler = ReActor_Scheduler;

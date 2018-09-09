@@ -12,7 +12,7 @@
   */
 open ReActor_Process;
 open ReActor_Utils;
-open FFI_Runtime;
+open ReActor_Runtime;
 
 /** Node type */
 /* TODO(@ostera): Make abstract? */

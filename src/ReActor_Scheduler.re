@@ -124,7 +124,7 @@ let trace: (ReActor_Tracer.t, ref(t)) => unit =
     let timeout = tracer.timeout;
     Js.log({j|[ReActor] Tracer setup for $timeout  ms.|j});
     scheduler := {...scheduler^, tracer: Some(tracer)};
-    FFI_Runtime.defer(
+    ReActor_Runtime.defer(
       () => {
         scheduler := {...scheduler^, tracer: None};
         Js.log({j|[ReActor] Tracer stopped after $timeout ms.|j});

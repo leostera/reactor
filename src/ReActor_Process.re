@@ -7,7 +7,7 @@
   folk call an Actor.
 
   */
-open FFI_Runtime;
+open ReActor_Runtime;
 
 module Message = {
   /**
@@ -112,7 +112,7 @@ let send: ('m, t) => unit =
     ();
   };
 
-let rec recv: (t, unit) => option(Message.t) =
+let recv: (t, unit) => option(Message.t) =
   (process, ()) =>
     switch (process.mailbox^) {
     | [] => None
