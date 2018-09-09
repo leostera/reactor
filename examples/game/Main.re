@@ -10,6 +10,7 @@ module Cursor = {
     | Normal;
 
   type state = {
+    shouldDraw: bool,
     x: int,
     y: int,
     status,
@@ -21,8 +22,8 @@ module Cursor = {
 
   let handleMessage = (state, message) =>
     switch (message) {
-    | Move(x, y) => {x, y, status: Normal}
-    | Click(x, y) => {x, y, status: Click}
+    | Move(x, y) => {x, y, status: Normal, shouldDraw: false}
+    | Click(x, y) => {x, y, status: Click, shouldDraw: true}
     | _ => state
     };
 
@@ -49,15 +50,16 @@ module Cursor = {
     (env, state) => {
       let state' = env.recv() >>| handleMessage(state) <|> state;
 
-      switch (state'.status) {
-      | Click => render(state')
+      switch (state'.status, state'.shouldDraw) {
+      | (Click, true) => render(state')
       | _ => ()
       };
 
-      Become(state');
+      Become({...state', shouldDraw: false});
     };
 
-  let start = () => spawn(loop, {x: 0, y: 0, status: Normal});
+  let start = () =>
+    spawn(loop, {x: 0, y: 0, status: Normal, shouldDraw: false});
 };
 
 module Scene = {
