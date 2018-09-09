@@ -108,6 +108,6 @@ let start = screenName => {
     ops: [],
   };
   let pid = spawn(loop, initialState) |> register(name);
-  let _flusher = Game_Timer.(start({target: pid, message: Flush, time: 16}));
+  let _flusher = Game_Timer.start({target: pid, message: Flush});
   pid;
 };

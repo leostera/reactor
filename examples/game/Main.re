@@ -27,24 +27,13 @@ module Cursor = {
     | _ => state
     };
 
+  let drawCmd = (x, y) =>
+    Game_Renderer.Pipeline([
+      DrawCircle(Point2D(x, y), 10, Canvas.RGBA(255, 255, 255, 0.7)),
+    ]);
+
   let render = ({x, y}) =>
-    whereIs(Game_Renderer.name)
-    >>| (
-      pid =>
-        send(
-          pid,
-          Game_Renderer.(
-            Pipeline([
-              DrawCircle(
-                Point2D(x, y),
-                10,
-                Canvas.RGBA(255, 255, 255, 0.7),
-              ),
-            ])
-          ),
-        )
-    )
-    |> ignore;
+    Game_Renderer.(whereIs(name) >>| (p => p <- drawCmd(x, y)) |> ignore);
 
   let loop: Process.f(state) =
     (env, state) => {
