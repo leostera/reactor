@@ -1,6 +1,6 @@
-open ReActor;
+open! ReActor;
 open ReActor_Utils;
-open FFI_Runtime;
+open ReActor_Runtime;
 
 type sample = {counter: int};
 

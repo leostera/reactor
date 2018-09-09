@@ -1,33 +1,41 @@
-// This is the configuration file used by BuckleScript's build system bsb. Its documentation lives here: http://bucklescript.github.io/bucklescript/docson/#build-schema.json
-// BuckleScript comes with its own parser for bsconfig.json, which is normal JSON, with the extra support of comments and trailing commas.
 {
   "name": "@ostera/reactor",
   "version": "0.0.1-alpha",
-  "sources": [{
-    "dir" : "examples",
-    "subdirs" : true
-  }, {
-    "dir" : "bench",
-    "subdirs" : true
-  }, {
-    "dir" : "test",
-    "subdirs" : true
-  }, {
-    "dir" : "src",
-    "subdirs" : true
-  }],
+  "sources": [
+    {
+      "dir": "bench",
+      "subdirs": true
+    },
+    {
+      "dir": "test",
+      "subdirs": true
+    },
+    {
+      "dir": "src",
+      "subdirs": true
+    },
+    {
+      "dir": "examples/game",
+      "subdirs": false
+    },
+    {
+      "dir": "examples/koans",
+      "subdirs": false
+    },
+  ],
   "package-specs": {
     "module": "es6-global",
     "in-source": false
   },
   "suffix": ".bs.js",
   "bs-dependencies": [
-      // add your dependencies here. You'd usually install them normally through `npm install my-dependency`. If my-dependency has a bsconfig.json too, then everything will work seamlessly.
-      "reason-react",
+    "reason-react",
   ],
-  "reason": { "react-jsx": 2 },
+  "reason": {
+    "react-jsx": 2
+  },
   "warnings": {
-    "error" : "+101"
+    "error": "+101"
   },
   "namespace": false,
   "refmt": 3

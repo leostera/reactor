@@ -1,6 +1,5 @@
 open ReActor;
 open ReActor_Utils;
-open FFI_Runtime;
 
 module ReactLogger = {
   let __name = "logger";
