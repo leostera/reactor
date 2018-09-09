@@ -143,7 +143,7 @@ module Game = {
   let start = () => {
     let _debugInfo = Game_DebugInfo.start();
     let _input = EventHandler.start();
-    let _renderer = Game_Renderer.start();
+    let _renderer = Game_Renderer.start("game");
     let _scene = Scene.start();
     ();
   };

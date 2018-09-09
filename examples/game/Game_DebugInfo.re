@@ -54,16 +54,17 @@ let render = state => {
     lastScreenSize,
   } = state;
   let color = Canvas.RGBA(255, 255, 255, 0.8);
-  let _ops =
+  let font = "20px Helvetica";
+  let ops =
     Game_Renderer.[
-      DrawText({j|Key Name: $lastKeyName|j}, Point2D(10, 10), color),
-      DrawText({j|Key Code: $lastKeyCode|j}, Point2D(10, 20), color),
-      DrawText({j|Click: $lastMouseClick|j}, Point2D(10, 30), color),
-      DrawText({j|Move: $lastMouseMove|j}, Point2D(10, 40), color),
-      DrawText({j|Screen: $lastScreenSize|j}, Point2D(10, 50), color),
+      DrawText({j|Key Name: $lastKeyName|j}, font, Point2D(10, 20), color),
+      DrawText({j|Key Code: $lastKeyCode|j}, font, Point2D(10, 40), color),
+      DrawText({j|Click: $lastMouseClick|j}, font, Point2D(10, 60), color),
+      DrawText({j|Move: $lastMouseMove|j}, font, Point2D(10, 80), color),
+      DrawText({j|Screen: $lastScreenSize|j}, font, Point2D(10, 100), color),
     ];
   whereIs(Game_Renderer.name)
-  >>| (pid => send(pid, Game_Renderer.Pipeline([])))
+  >>| (pid => send(pid, Game_Renderer.Pipeline(ops)))
   |> ignore;
 };
 

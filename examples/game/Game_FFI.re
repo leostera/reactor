@@ -19,8 +19,8 @@ module Event = {
   type event = {
     [@bs.as "type"]
     _type: string,
-    screenX: int,
-    screenY: int,
+    pageX: int,
+    pageY: int,
     [@bs.as "key"]
     keyName: string,
     keyCode: int,
@@ -74,8 +74,8 @@ module Event = {
   let data = event =>
     switch (kind(event)) {
     | Resize => ResizeData(Viewport.width(), Viewport.height())
-    | Click => ClickData(screenXGet(event), screenYGet(event))
-    | MouseMove => MouseMoveData(screenXGet(event), screenYGet(event))
+    | Click => ClickData(pageXGet(event), pageYGet(event))
+    | MouseMove => MouseMoveData(pageXGet(event), pageYGet(event))
     | KeyDown => KeyDownData(keyNameGet(event), keyCodeGet(event))
     | Unknown => NoData
     };
@@ -118,6 +118,10 @@ module DOM = {
     __unsafe_removeEventListener(node, Event.toString(event), handler);
     node;
   };
+
+  [@bs.get] external __unsafe_getWidth: node => int = "width";
+  [@bs.get] external __unsafe_getHeight: node => int = "height";
+  let size = node => (node |> __unsafe_getWidth, node |> __unsafe_getHeight);
 };
 
 module Canvas = {
@@ -128,7 +132,14 @@ module Canvas = {
   [@bs.val] [@bs.scope "document"]
   external __unsafe_createCanvas: ([@bs.as "canvas"] _, unit) => canvas =
     "createElement";
-  let create = __unsafe_createCanvas;
+  [@bs.set] external __unsafe_width: (canvas, int) => unit = "width";
+  [@bs.set] external __unsafe_height: (canvas, int) => unit = "height";
+  let create = (w, h) => {
+    let canvas = __unsafe_createCanvas();
+    __unsafe_width(canvas, w);
+    __unsafe_height(canvas, h);
+    canvas;
+  };
 
   /** Abstract type for a canvas context */
   type context;
@@ -184,9 +195,9 @@ module Canvas = {
   [@bs.set] external __unsafe_font: (context, string) => unit = "font";
   [@bs.send]
   external __unsafe_fillText: (context, string, int, int) => unit = "fillText";
-  let fillText = (canvas, text, Point2D(x, y), color) => {
+  let fillText = (canvas, text, font, Point2D(x, y), color) => {
     fillStyle(canvas, color);
-    __unsafe_font(canvas, "12px Helvetica");
+    __unsafe_font(canvas, font);
     __unsafe_fillText(canvas, text, x, y);
     canvas;
   };
