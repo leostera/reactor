@@ -41,11 +41,11 @@ let __main = ReActor_Node.make();
 
 /**
   Spawning processes is a core functionality of [ReActor], and for every
-  spawned process you will always get a process identifier back ([Pid.t]).
+  spawned process you will always get a process identifier back ({!Pid.t}).
 
-  You can use the returned [Pid.t] to [exit] this process, [send] messages to
-  it, [register] it under a well-known name, or use it for tracing purposes
-  with [trace].
+  You can use the returned {!Pid.t} to {!exit} this process, {!send} messages to
+  it, {!register} it under a well-known name, or use it for tracing purposes
+  with {!trace}.
   */
 let spawn = (f, args) => ReActor_Node.spawn(__main, f, args);
 
@@ -89,12 +89,36 @@ let whereIs = ReActor_Node.whereIs(__main);
 
   Note: one limitation of working in the browser is that processes being
   executed in schedulers other than the Main Thread Scheduler **cannot** receive
-  functions in their messages. This is due to functions not being serializable
-  by the Structured Clone[0] algorithm.
+  functions in their messages.
 
-  [0] https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
+  This is due to functions not being serializable by the
+  {{:https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm}Structured
+  Clone algorithm}.
+
  */
 let send = ReActor_Node.send(__main);
+
+/** Operator alias for {{!send}send}.
+
+It makes sequencing messages to a particular process much cleaner. From:
+
+{[
+
+(pid : Pid.t)
+|> p => send(p, message1)
+|> p => send(p, message2)
+|> p => send(p, message3)
+
+]}
+
+We can simplify to:
+
+{[
+
+(pid : Pid.t) <- message1 <- message2 <- message3
+
+]}
+ */
 let (<-) = send;
 
 /**
