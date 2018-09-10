@@ -27,8 +27,3 @@ for file in ${ODOC_FILES}; do
     ${file}
 done
 echo ">> Done!"
-
-# echo "<< Copying support files..."
-# ${ODOC} support-files \
-#   -o ${DOCS}
-# echo ">> Done!"
