@@ -1,39 +1,55 @@
-/**
+/** A Node maps directly to a Browser Agent.
 
-  A Node maps directly to a Browser Agent. It is the orchestrator of Schedulers,
-  making sure that they are sharing the load fairly equally, and gives access to
-  name registering functionality and tracing set up.
+  It is the orchestrator of schedulers, making sure that they are sharing the
+  load fairly equally, and gives access to a name register and tracing
+  functionality.
 
-  There should only be a single node per Browser Agent.
+  There should only be a {i single node} per Browser Agent.
 
-  In the future, multiple nodes can join together, which allows them to share
-  the load between multiple browsers.
+  See {!ReActor_Scheduler}, {!ReActor_Tracer}.
+ */
+type __doc; /* TODO(@ostera): Remove when
+               https://github.com/facebook/reason/issues/2177 is fixed */
 
-  */
 open ReActor_Process;
 open ReActor_Utils;
 open ReActor_Runtime;
 
-/** Node type */
-/* TODO(@ostera): Make abstract? */
+/**
+  Process Registry type.
+
+  A simple Property-list keyed by a String and valued by a
+  {!ReActor_Process.Pid.t}.
+  */
+/* TODO(@ostera): Make an instance of String.Map for this */
+type proc_registry = list((string, Pid.t));
+
+/** Node type.
+
+  This internal record represents a Browser Agent. All operations in this module
+  work on a value of this type.
+ */
 type t = {
-  /** The name of the node as a string, usually looking like a SHA1 */
+  /** The name of the node as a string, usually looking like a SHA1. */
   node_name: string,
-  /** A list of scheduler references */
+  /** A list of scheduler references. */
   schedulers: list(ref(ReActor_Scheduler.t)),
-  /** A proplist used to keep track of registered names and their pids */
-  registry: ref(list((string, Pid.t))),
+  /** A list of tuples used to keep track of registered names and their pids. */
+  registry: ref(proc_registry),
 };
 
 /**
-  Call this function to create a Node.
+  Call this function to create a {!ReActor_Node.t}.
 
   By default a node will create as many schedulers as processors the Browser
   Agent has available.
 
   This means that a computer with 4 cores can use 4 separate execution threads,
   and thus will have 4 schedulers running in parallel.
-  */
+
+  At least one of those schedulers will run on the Main Thread (Rendering
+  Thread).
+ */
 let make: unit => t =
   () => {
     let node_name = Random.shortId();
@@ -50,6 +66,9 @@ let make: unit => t =
     };
   };
 
+/**
+  Set up a {!ReActor_Tracer.t} on this node.
+  */
 let trace: (t, ReActor_Tracer.t) => unit =
   (node, tracer) =>
     node.schedulers |> List.iter(ReActor_Scheduler.trace(tracer));
@@ -76,7 +95,7 @@ let register: (t, string, Pid.t) => Pid.t =
 
 /**
   Lookup the [name] in the [node] registry. Returns a [Pid.t] if it found one.
-  */
+ */
 let whereIs: (t, string) => option(Pid.t) =
   (node, name) => {
     let byName = List.find(((name', _pid)) => name == name');
@@ -91,7 +110,7 @@ let whereIs: (t, string) => option(Pid.t) =
   includes the identifier of the [scheduler] it runs on.
 
   Then write the [message] to the [process] mailbox.
-  */
+ */
 let send: (t, Pid.t, Message.t) => unit =
   (node, pid, message) =>
     node.schedulers

@@ -55,11 +55,62 @@ module Status = {
     | Dead => "dead";
 };
 
+/**
+  The Behavior type defines how a given Actor will behave as soon as the
+  current computation is completed.
+
+  It is in fact a value of this type that the computation {i must} return.
+
+  The literature tends to uses the name {!Become} to indicate that an actor
+  will {i somehow} turn into a new actor, with the exact same identifier and
+  mailbox, but that will begin it's execution with a different set of inputs.
+
+  In essence, if an actor's main function looks like:
+
+  {[
+    let proc: Process.f(int) = (_, counter) => Become(counter + 1)
+  ]}
+
+  Then this actor will increment it's internal counter by 1 on every scheduled
+  execution, and it will continue doing so for as long as the system is running.
+
+  A slightly different actor:
+
+  {[
+    let proc: Process.f(int) = (_, counter) => Suspend(counter, counter+1)
+  ]}
+
+  Will be indefinitely scheduled (like the one above) and wait {!counter}
+  milliseconds before becoming a new actor with an incremented counter.
+  */
 type behavior('s) =
-  | Become('s)
-  | OnAnimationFrame('s)
-  | Suspend(int, 's)
-  | Terminate;
+  | /**
+      Indicate that this actor should not become a new actor but instead
+      should be terminated as soon as the current computation completes.
+     */
+    Terminate
+  | /**
+      Indicate that this actor should become a new actor with the same
+      identifier and mailbox, but with a new state {!'s}.
+     */
+    Become(
+      's,
+    )
+  | /**
+      Indicate this actor should become a new actor with new state {!'s} in {i
+      at most} [n] milliseconds.
+      */
+    Suspend(
+      int,
+      's,
+    )
+  | /**
+      Indicate that this actor should {!Become} as soon as the next Animation
+      Frame is available; this is particularly useful for rendering purposes.
+     */
+    OnAnimationFrame(
+      's,
+    );
 
 /**
   The environment type.
@@ -68,10 +119,8 @@ type behavior('s) =
   capability to
 
   {ul
-    {- [loop] indefinitely while making state changes immutably. }
     {- use [self] to access it's own [Pid.t] (useful for establishing
     communications). }
-    {- [sleep] for a finite amount of time before continuing a computation. }
     {- Use [recv] to consume messages from their mailbox. }}
 
   The semantics of [recv] dictate that if the mailbox is **empty**, the process
@@ -97,8 +146,16 @@ type f('s) = (env('s), 's) => behavior('s);
   will stop executing after the current scheduled computation ends.
   */
 type t = {
+  /** The identifier for this process. */
   pid: Pid.t,
+  /**
+    Whether this process is currently Alive or if it has been naturally or
+   abruptly Terminated.
+   */
   status: ref(Status.t),
+  /**
+    The list of messages associated to this {!Pid.t}.
+    */
   mailbox: ref(list(Message.t)),
 };
 

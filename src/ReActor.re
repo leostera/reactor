@@ -1,33 +1,34 @@
 /** A Reasonably-typed Actor-model Library for the Browser.
 
-  [ReActor] works by scheduling [processes] to run in different [schedulers]
-  that are in turn managed by a [node].
+  [ReActor] works by scheduling processes to run in different schedulers
+  that are in turn managed by a node.
 
-  A [node] corresponds to a browser agent (a browser window if you will), and it
-  will manage as many [schedulers] as you have cores in your machine. This is to
-  utilize as much of the CPU power available when executing the [processes].
+  A node corresponds to a browser agent (a browser window if you will), and it
+  will manage as many schedulers as you have cores in your machine. This is to
+  utilize as much of the CPU power available when executing the processes.
 
-  Each [scheduler] corresponds to a WebWorker, except the Main Scheduler, that
-  runs on the window's MainThread.
+  Each scheduler corresponds to either the Main Thread of execution in the
+  browser agent, or a WebWorker.
 
-  Every [process] that is [spawned] will be executed in any of the running
-  [schedulers], guaranteeing that the load is balanced amongst your cores.
+  Every process that is spawned will be executed in any of the running
+  schedulers, guaranteeing that the load is balanced amongst the browser agent
+  cores.
 
-  You can [send] [messages] to [processes] by their [process identifier] from
-  other [processes]. This allows them to collaborate and solve problems
-  together.
+  You can send messages to processes from other processes. This allows them to
+  collaborate and solve problems together.
 
   For more info on the Actor-model feel free to have a look at:
 
-  - Hewitt's Actor Model of Computation (https://arxiv.org/vc/arxiv/papers/1008/1008.1459v8.pdf)
-  - Gul Agha's Actors (https://mitpress.mit.edu/books/actors)
-  - Erlang (http://www.erlang.org/)
-  - Elixir (https://elixir-lang.org/)
-
+  - {{:https://en.wikipedia.org/wiki/Smalltalk}Smalltalk}, {{:http://www.erlang.org/}Erlang} and {{:https://elixir-lang.org/}Elixir}
+  - {{:https://arxiv.org/vc/arxiv/papers/1008/1008.1459v8.pdf}Hewitt's Actor Model of Computation}
+  - {{:https://mitpress.mit.edu/books/actors}Gul Agha's Actors}
  */
-module Runtime = ReActor_Runtime;
+type __doc; /* TODO(@ostera): Remove when
+               https://github.com/facebook/reason/issues/2177 is fixed */
+
 module Node = ReActor_Node;
 
+module Runtime = ReActor_Runtime;
 module Scheduler = ReActor_Scheduler;
 module Sid = Scheduler.Sid;
 
