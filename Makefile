@@ -6,7 +6,10 @@ BSB=$(NODE_BIN)/bsb
 deps:
 	@yarn
 
-docs:
+docs: build
+	@./scripts/mk-docs.sh
+
+spec-docs:
 	@./scripts/setup-tla-plus.sh
 	@./scripts/tla-to-pdf.sh
 

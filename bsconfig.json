@@ -15,12 +15,8 @@
       "subdirs": true
     },
     {
-      "dir": "examples/game",
-      "subdirs": false
-    },
-    {
-      "dir": "examples/koans",
-      "subdirs": false
+      "dir": "examples",
+      "subdirs": true
     },
   ],
   "package-specs": {
