@@ -1,5 +1,4 @@
-/**
-  A Reasonably-typed Actor-model Library for the Browser.
+/** A Reasonably-typed Actor-model Library for the Browser.
 
   [ReActor] works by scheduling [processes] to run in different [schedulers]
   that are in turn managed by a [node].

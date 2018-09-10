@@ -1,5 +1,7 @@
 #!/bin/bash
 
+readonly PKG=ReActor
+
 readonly DOCS=docs
 readonly ODOC=$(which odoc)
 readonly LIB=./lib/bs/src
@@ -11,7 +13,7 @@ echo "<< Compiling docs..."
 for file in ${CMT_FILES}; do
   ${ODOC} compile \
     -I ${LIB} \
-    --pkg=ReActor \
+    --pkg=${PKG} \
     ${file}
 done
 echo ">> Done!"
@@ -26,7 +28,7 @@ for file in ${ODOC_FILES}; do
 done
 echo ">> Done!"
 
-echo "<< Copying support files..."
-${ODOC} support-files \
-  -o ${DOCS}
-echo ">> Done!"
+# echo "<< Copying support files..."
+# ${ODOC} support-files \
+#   -o ${DOCS}
+# echo ">> Done!"
