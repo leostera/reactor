@@ -23,6 +23,7 @@ for file in ${ODOC_FILES}; do
   ${ODOC} html \
     -I ${LIB} \
     -o ${DOCS} \
+    --syntax=re \
     --semantic-uris \
     ${file}
 done
