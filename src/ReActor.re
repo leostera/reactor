@@ -22,9 +22,7 @@
   - {{:https://en.wikipedia.org/wiki/Smalltalk}Smalltalk}, {{:http://www.erlang.org/}Erlang} and {{:https://elixir-lang.org/}Elixir}
   - {{:https://arxiv.org/vc/arxiv/papers/1008/1008.1459v8.pdf}Hewitt's Actor Model of Computation}
   - {{:https://mitpress.mit.edu/books/actors}Gul Agha's Actors}
- */
-type __doc; /* TODO(@ostera): Remove when
-               https://github.com/facebook/reason/issues/2177 is fixed */
+ */;
 
 module Node = ReActor_Node;
 

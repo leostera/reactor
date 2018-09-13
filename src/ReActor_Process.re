@@ -6,7 +6,8 @@
   If you are familiar with the Actor-model, a Process is what the Erlang/Elixir
   folk call an Actor.
 
-  */
+  */;
+
 open ReActor_Runtime;
 
 module Message = {

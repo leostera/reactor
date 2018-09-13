@@ -7,9 +7,7 @@
   There should only be a {i single node} per Browser Agent.
 
   See {!ReActor_Scheduler}, {!ReActor_Tracer}.
- */
-type __doc; /* TODO(@ostera): Remove when
-               https://github.com/facebook/reason/issues/2177 is fixed */
+ */;
 
 open ReActor_Process;
 open ReActor_Utils;

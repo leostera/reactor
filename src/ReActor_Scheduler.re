@@ -6,7 +6,8 @@
   It is piece in charge of execution scheduled computations that make up the
   processes.
 
-  */
+  */;
+
 open ReActor_Process;
 open ReActor_Utils;
 
