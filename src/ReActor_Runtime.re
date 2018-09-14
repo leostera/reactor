@@ -1,18 +1,20 @@
+type callback('a) = unit => 'a;
+
 [@bs.val]
-external __unsafe_setImmediate: (unit => 'a) => unit = "setImmediate";
+external __unsafe_setImmediate: callback('a) => unit = "setImmediate";
 let nextTick = __unsafe_setImmediate;
 
 [@bs.val]
-external __unsafe_setTimeout: (unit => 'a, int) => unit = "setTimeout";
+external __unsafe_setTimeout: (callback('a), int) => unit = "setTimeout";
 let defer = __unsafe_setTimeout;
 
 [@bs.val]
-external __unsafe_requestIdleCallback: (unit => 'a) => unit =
+external __unsafe_requestIdleCallback: callback('a) => unit =
   "requestIdleCallback";
 let onIdle = __unsafe_requestIdleCallback;
 
 [@bs.val]
-external __unsafe_requestAnimationFrame: (unit => 'a) => unit =
+external __unsafe_requestAnimationFrame: callback('a) => unit =
   "requestAnimationFrame";
 let onAnimationFrame = __unsafe_requestAnimationFrame;
 

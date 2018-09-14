@@ -6,8 +6,8 @@ readonly DOCS=docs
 readonly ODOC=$(which odoc)
 readonly LIB=./lib/bs/src
 
-readonly CMT_FILES=$(find ${LIB} -name "*.cmt")
-readonly ODOC_FILES=$(echo ${CMT_FILES} | sed "s/cmt/odoc/g")
+readonly CMT_FILES=$(find ${LIB} -name "*.cmti")
+readonly ODOC_FILES=$(echo ${CMT_FILES} | sed "s/cmti/odoc/g")
 
 echo "<< Compiling docs..."
 for file in ${CMT_FILES}; do
