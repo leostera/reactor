@@ -5,11 +5,13 @@ readonly PKG=ReActor
 readonly DOCS=docs
 readonly ODOC=$(which odoc)
 readonly LIB=./lib/bs/src
+readonly SRC=./src
 
+# Gather the sources to compile .odoc files
 readonly CMT_FILES=$(find ${LIB} -name "*.cmti")
-readonly ODOC_FILES=$(echo ${CMT_FILES} | sed "s/cmti/odoc/g")
+readonly MLD_FILES=$(find ${SRC} -name "*.mld")
 
-echo "<< Compiling docs..."
+echo "<< Compiling module docs..."
 for file in ${CMT_FILES}; do
   ${ODOC} compile \
     -I ${LIB} \
@@ -17,6 +19,20 @@ for file in ${CMT_FILES}; do
     ${file}
 done
 echo ">> Done!"
+
+echo "<< Compiling page docs..."
+for file in ${MLD_FILES}; do
+  odoc_file=$( echo $(basename ${file}) | sed "s/mld/odoc/")
+  ${ODOC} compile \
+    -I ${LIB} \
+    --pkg=${PKG} \
+    -o ${LIB}/${odoc_file} \
+    ${file}
+done
+echo ">> Done!"
+
+# Now we can look for the compiled .odoc files
+readonly ODOC_FILES=$(find ${LIB} -name "*.odoc")
 
 echo "<< Generating HTML..."
 for file in ${ODOC_FILES}; do
