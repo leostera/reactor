@@ -9,7 +9,6 @@
   "devDependencies": {
     "@ostera/rebench": "^0.0.1-alpha",
     "bs-platform": "^4.0.5",
-    "docre": "bsansouci/docre",
     "node-static": "^0.7.10",
     "reason-react": "^0.5.3"
   }
