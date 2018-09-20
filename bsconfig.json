@@ -25,6 +25,7 @@
   },
   "suffix": ".bs.js",
   "bs-dependencies": [
+    "rebench",
     "reason-react",
   ],
   "reason": {

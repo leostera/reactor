@@ -2,12 +2,6 @@
 # yarn lockfile v1
 
 
-"@ostera/rebench@^0.0.1-alpha":
-  version "0.0.1-alpha"
-  resolved "https://registry.yarnpkg.com/@ostera/rebench/-/rebench-0.0.1-alpha.tgz#67871d1bf84a20972d05b64c04496fb3613c3d2f"
-  dependencies:
-    benchmark "^2.1.4"
-
 asap@~2.0.3:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/asap/-/asap-2.0.6.tgz#e50347611d7e690943208bbdafebcbc2fb866d46"
@@ -155,6 +149,12 @@ reason-react@^0.5.3:
   dependencies:
     react ">=15.0.0 || >=16.0.0"
     react-dom ">=15.0.0 || >=16.0.0"
+
+rebench@^0.0.2-alpha:
+  version "0.0.2-alpha"
+  resolved "https://registry.yarnpkg.com/rebench/-/rebench-0.0.2-alpha.tgz#24b557387a3a78dd8eace6f4269e8fdc37565920"
+  dependencies:
+    benchmark "^2.1.4"
 
 "safer-buffer@>= 2.1.2 < 3":
   version "2.1.2"

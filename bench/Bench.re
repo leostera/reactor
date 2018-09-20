@@ -1,1 +1,1 @@
-Js.log("bench");
+ReBench.(make() |> run({async: false}));
