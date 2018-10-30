@@ -26,6 +26,8 @@ test:
 	@node lib/js/test/Test.bs.js
 
 serve: deps
+	rm -f ./reactor
+	ln -sf ./docs/ ./reactor
 	@$(NODE_BIN)/static
 
 clean:

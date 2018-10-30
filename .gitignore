@@ -9,3 +9,4 @@ spec/*.toolbox
 *.zip
 tags
 *.swp
+reactor
