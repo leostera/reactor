@@ -7,6 +7,7 @@ library. It is not meant for production and has no stable API.
 
 + {{:#introduction} Introduction}
 + {{:#design-and-architecture} Design and Architecture}
++ {{:#implementation} Implementation}
 + {{:#conclusion} Conclusion}
 + {{:#references} References}
 
@@ -21,7 +22,11 @@ The appearance of Web Workers changed this by allowing arbitrary Javascript code
 to be executed in a separate event-loop that can communicate with the main event
 loop via message passing and transferrable data structures. To this day it still
 is not trivial to leverage them: given they are very coarse low-level features,
-everything else is left to be implemented at the application level.
+any higher-level concurrency feature is left to be implemented at the
+application level.
+
+To aggravate this issue, a failure or resource-starvation in the main program
+of a worker will effectively take the worker out of service.
 
 To address these issues, [re:actor] began as an experiment for type-safe,
 message-passing concurrent computation modeled after Smalltalk-72, Erlang, and
@@ -120,14 +125,31 @@ will be consumed.
 />
 %}
 
-{1:conclusion 3. Conclusion}
+Furthermore, a process defines exactly what messages to accept when consuming
+it's mailbox, and should only be able to handle such messages.
 
-While the core abstractions can be implemented in the web platform with certain
-shortcomings, the overall idea 
+{1:implementation 3. Implementation}
 
+This section describes the current implementation of the [re:actor] library and
+the shortcomings the web platform imposed, split into the following orthogonal
+topics:
 
+- Process spawning,
+- Fair-scheduling,
+- Guaranteed Message-passing
+- Typesafe Message-passing
 
-{1:references 4. References}
+{3:process-spawning Process Spawning}
+
+{3:fair-scheduling Fair Scheduling}
+
+{3:guaranteed-message-passing Guaranteed Message-passing}
+
+{3:typesafe-message-passing Typesafe Message-passing}
+
+{1:conclusion 4. Conclusion}
+
+{1:references 5. References}
 
 - {{:https://en.wikipedia.org/wiki/Smalltalk}Smalltalk}
 - {{:http://www.erlang.org/}Erlang} and {{:https://elixir-lang.org/}Elixir}
