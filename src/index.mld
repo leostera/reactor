@@ -3,6 +3,8 @@
 [re:actor] is an {e experimental} type-safe, message-passing concurrency
 library. It is not meant for production and has no stable API.
 
+{3:toc Table of Contents}
+
 + {{:#introduction} Introduction}
 + {{:#design-and-architecture} Design and Architecture}
 + {{:#conclusion} Conclusion}
