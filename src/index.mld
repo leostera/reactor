@@ -4,42 +4,46 @@
 library. It is not meant for production and has no stable API.
 
 + {{:#introduction} Introduction}
-+ {{:#design} Design}
++ {{:#design-and-architecture} Design and Architecture}
 + {{:#conclusion} Conclusion}
 + {{:#references} References}
 
 {1:introduction 1. Introduction}
 
-Web applications today run in a single-threaded event loop that does not
-effectively leverage the many-core architectures available. This means that in
-a many-core computer, where a web application could be potentially executing
+Web applications today run by default in a single-threaded event loop that does
+not effectively leverage the many-core architectures available. This means that
+in a many-core computer, where a web application could be potentially executing
 many parallel actions at once, it typically executes only one.
 
-The appearance of Web Workers changed this by allowing arbitrary code to be
-executed in a separate event-loop that can communicate with the main event loop
-via message passing and transferrable data structures. To this day it still is
-not trivial to leverage them, given they are very coarse low-level features and
-capabilities such as message handling, serializing data structures, and
-coordinating program execution are left for the applications themselves.
+The appearance of Web Workers changed this by allowing arbitrary Javascript code
+to be executed in a separate event-loop that can communicate with the main event
+loop via message passing and transferrable data structures. To this day it still
+is not trivial to leverage them: given they are very coarse low-level features,
+everything else is left to be implemented at the application level.
 
 To address these issues, [re:actor] began as an experiment for type-safe,
 message-passing concurrent computation modeled after Smalltalk-72, Erlang, and
-Gul Agha's Actor model. 
+Gul Agha's Actor model.
 
-I will attempt to evaluate this experiment on how well it provides:
+This experiment will be evaluated based on how well it provides:
 
 - Symmetric Multiprocessing: or how seamlessly it allows an application to
-  leverage parallelism in multi-core computers.
+  leverage parallelism in many-core computers.
+
 - Failure Isolation: a process failure should not have an implicit impact on
   the rest of the system.
-- Type-safe Message Passing: process failure due to unexpected messages should
-  be detected at compile time.
 
-{1:design 2. Design}
+- Type-safe Message Passing: processes can be checked handle all of the messages
+  they expect to handle at compile time.
+
+By writing a number of small projects that showcase these capabilities.
+
+{1:design-and-architecture 2. Design and Architecture}
 
 [re:actor] is designed to allow web applications to be expressed as a group of
 independent processes that communicate by sending messages to each other, and
-can run leveraging the entire of their host machines available computing power.
+can run leveraging the entire of their host machines available computing power
+seamlessly.
 
 {%html:
 <img
@@ -49,16 +53,13 @@ can run leveraging the entire of their host machines available computing power.
 />
 %}
 
-
-{2:core-abstractions Core Abstractions}
-
-To help you build scalable applications, the library includes a small set of
-constructs at different levels of abstraction:
+The library includes a set of constructs at different levels of abstraction for
+this purpose:
 
 - Nodes and Schedulers at the Platform-level, and
 - Processes and Mesages at the Application-level.
 
-{4 Platform-level}
+{3 Platform-level Abstractions}
 
 {i Nodes} are responsible for orchestrating schedulers, and they typically map
 1-to-1 with a single computer. If you're running a re:actor application in a
@@ -80,7 +81,7 @@ message, it is a scheduler that will make sure it gets delivered.
 />
 %}
 
-{4 Application-level}
+{3 Application-level Abstractions}
 
 {i Processes} are what applications are made of. They represent {i tasks} that
 have to be carried out. In the literature they are also referred to as:
