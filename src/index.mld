@@ -45,7 +45,7 @@ can run leveraging the entire of their host machines available computing power.
 <img
   title="re:actor powered architecture"
   style="width: 100%; margin: 0.5em 0 1em 0;"
-  src="/docs/assets/high-level-sketch.png"
+  src="/reactor/assets/high-level-sketch.png"
 />
 %}
 
@@ -76,7 +76,7 @@ message, it is a scheduler that will make sure it gets delivered.
 <img
   title="Overall constructs"
   style="width: 100%; margin: 0.5em 0 1em 0;"
-  src="/docs/assets/constructs-sketch.png"
+  src="/reactor/assets/constructs-sketch.png"
 />
 %}
 
@@ -113,7 +113,7 @@ will be consumed.
 <img
   title="Message-passing"
   style="width: 100%; margin: 0.5em 0 1em 0;"
-  src="/docs/assets/message-passing-sketch.png"
+  src="/reactor/assets/message-passing-sketch.png"
 />
 %}
 
@@ -131,6 +131,6 @@ shortcomings, the overall idea
 - {{:https://arxiv.org/vc/arxiv/papers/1008/1008.1459v8.pdf}Hewitt's Actor Model
   of Computation}
 - {{:https://mitpress.mit.edu/books/actors}Gul Agha's Actors}
-- {{:https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API} Web
+- {{:https://developer.mozilla.org/en-US/reactor/Web/API/Web_Workers_API} Web
   Workers }
 - {{:http://www-inst.eecs.berkeley.edu/~n252/paper/Amdahl.pdf} Amdahl's Law} 
