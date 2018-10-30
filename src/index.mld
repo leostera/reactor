@@ -1,0 +1,136 @@
+{0:top 🚀 re:actor}
+
+[re:actor] is an {e experimental} type-safe, message-passing concurrency
+library. It is not meant for production and has no stable API.
+
++ {{:#introduction} Introduction}
++ {{:#design} Design}
++ {{:#conclusion} Conclusion}
++ {{:#references} References}
+
+{1:introduction 1. Introduction}
+
+Web applications today run in a single-threaded event loop that does not
+effectively leverage the many-core architectures available. This means that in
+a many-core computer, where a web application could be potentially executing
+many parallel actions at once, it typically executes only one.
+
+The appearance of Web Workers changed this by allowing arbitrary code to be
+executed in a separate event-loop that can communicate with the main event loop
+via message passing and transferrable data structures. To this day it still is
+not trivial to leverage them, given they are very coarse low-level features and
+capabilities such as message handling, serializing data structures, and
+coordinating program execution are left for the applications themselves.
+
+To address these issues, [re:actor] began as an experiment for type-safe,
+message-passing concurrent computation modeled after Smalltalk-72, Erlang, and
+Gul Agha's Actor model. 
+
+I will attempt to evaluate this experiment on how well it provides:
+
+- Symmetric Multiprocessing: or how seamlessly it allows an application to
+  leverage parallelism in multi-core computers.
+- Failure Isolation: a process failure should not have an implicit impact on
+  the rest of the system.
+- Type-safe Message Passing: process failure due to unexpected messages should
+  be detected at compile time.
+
+{1:design 2. Design}
+
+[re:actor] is designed to allow web applications to be expressed as a group of
+independent processes that communicate by sending messages to each other, and
+can run leveraging the entire of their host machines available computing power.
+
+{%html:
+<img
+  title="re:actor powered architecture"
+  style="width: 100%; margin: 0.5em 0 1em 0;"
+  src="/docs/assets/high-level-sketch.png"
+/>
+%}
+
+
+{2:core-abstractions Core Abstractions}
+
+To help you build scalable applications, the library includes a small set of
+constructs at different levels of abstraction:
+
+- Nodes and Schedulers at the Platform-level, and
+- Processes and Mesages at the Application-level.
+
+{4 Platform-level}
+
+{i Nodes} are responsible for orchestrating schedulers, and they typically map
+1-to-1 with a single computer. If you're running a re:actor application in a
+single browser, on a single computer, you'd normally run a single node. A
+node will make sure there are as many schedulers as machine cores available
+and that they are healthy at all points. They also have run-time information
+about the system they are running on.
+
+{i Schedulers} are the ones that run processes and deliver messages. Each
+scheduler corresponds to a single event-loop, and this could be either the
+Main Thread of a browser, or a Web Worker. Every time a process send a
+message, it is a scheduler that will make sure it gets delivered.
+
+{%html:
+<img
+  title="Overall constructs"
+  style="width: 100%; margin: 0.5em 0 1em 0;"
+  src="/docs/assets/constructs-sketch.png"
+/>
+%}
+
+{4 Application-level}
+
+{i Processes} are what applications are made of. They represent {i tasks} that
+have to be carried out. In the literature they are also referred to as:
+
+- {i Objects} in Smalltalk,
+- {i Actors} in the Actor-model, or
+- {i Processes} in Erlang.
+
+They can be short lived or long lived, one-offs or self-scheduling, they can be
+static or change their state over time. These tasks can be as simple as
+incrementing an internal counter and logging out any message that is received,
+or as complex as coordinating transactions across other processes. They are an
+incredibly powerful abstraction to work with.
+
+[re:actor] applications can consist of hundreds of thousands or even millions
+of processes.
+
+Processes communicate with other processes via {i message passing}, where a
+message gets copied from the sending process to the receiving process' mailbox.
+
+{i Messages} are data structures that processes send to each other to
+communicate.
+
+Message passing in [re:actor] is {i guaranteed to deliver messages}. However,
+because the behavior of a process consists of application code that might never
+consume messages from it's mailbox, it is impossible to guarantee that messages
+will be consumed.
+
+{%html:
+<img
+  title="Message-passing"
+  style="width: 100%; margin: 0.5em 0 1em 0;"
+  src="/docs/assets/message-passing-sketch.png"
+/>
+%}
+
+{1:conclusion 3. Conclusion}
+
+While the core abstractions can be implemented in the web platform with certain
+shortcomings, the overall idea 
+
+
+
+{1:references 4. References}
+
+- {{:https://en.wikipedia.org/wiki/Smalltalk}Smalltalk}
+- {{:http://www.erlang.org/}Erlang} and {{:https://elixir-lang.org/}Elixir}
+- {{:https://arxiv.org/vc/arxiv/papers/1008/1008.1459v8.pdf}Hewitt's Actor Model
+  of Computation}
+- {{:https://mitpress.mit.edu/books/actors}Gul Agha's Actors}
+- {{:https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API} Web
+  Workers }
+- {{:http://www-inst.eecs.berkeley.edu/~n252/paper/Amdahl.pdf} Amdahl's Law} 

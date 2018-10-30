@@ -22,7 +22,7 @@ echo ">> Done!"
 
 echo "<< Compiling page docs..."
 for file in ${MLD_FILES}; do
-  odoc_file=$( echo $(basename ${file}) | sed "s/mld/odoc/")
+  odoc_file=$( echo $(basename ${file}) | sed "s/mld/odoc/" | sed "s/^/page-/" )
   ${ODOC} compile \
     -I ${LIB} \
     --pkg=${PKG} \
