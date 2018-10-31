@@ -3,6 +3,8 @@
 [re:actor] is an {e experimental} type-safe, message-passing concurrency
 library. It is not meant for production and has no stable API.
 
+For the top-level library module see {!ReActor}.
+
 {%html:
 <nav class="toc">
 %}
@@ -187,9 +189,9 @@ possible, and when it isn't, the tradeoffs have to be made clear.
 If a process' function definition is {i partial} or executes a time-intense
 computation, it will block the scheduler until it terminates. 
 
-{1:conclusion 4. Conclusion}
+{1:conclusion 3. Conclusion}
 
-{1:references 5. References}
+{1:references 4. References}
 
 - {{:https://en.wikipedia.org/wiki/Smalltalk}Smalltalk}
 - {{:http://www.erlang.org/}Erlang} and {{:https://elixir-lang.org/}Elixir}
