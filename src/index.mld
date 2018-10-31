@@ -3,13 +3,25 @@
 [re:actor] is an {e experimental} type-safe, message-passing concurrency
 library. It is not meant for production and has no stable API.
 
-{3:toc Table of Contents}
-
-+ {{:#introduction} Introduction}
-+ {{:#design-and-architecture} Design and Architecture}
-+ {{:#implementation} Implementation}
-+ {{:#conclusion} Conclusion}
-+ {{:#references} References}
+{%html:
+<nav class="toc">
+%}
+{ol
+  {li {{:#introduction} Introduction}}
+  {li {{:#overview} Overview}
+    {ol
+      {li {{:#2.1-basics} Basics}}
+      {li {{:#2.2-processes-and-behaviors} Processes and Behaviors}}
+      {li {{:#2.3-guaranteed-message-passing} Guaranteed Message-passing}}
+      {li {{:#2.4-typesafe-message-passing} Typesafe Message-passing}}
+      {li {{:#2.5-seamless-multi-core} Seamless Multi-core}}
+      {li {{:#2.6-fair-scheduling} Fair Scheduling}}
+      }}
+  {li {{:#conclusion} Conclusion}}
+  {li {{:#references} References}}}
+{%html:
+</nav>
+%}
 
 {1:introduction 1. Introduction}
 
@@ -34,8 +46,8 @@ Gul Agha's Actor model.
 
 This experiment will be evaluated based on how well it provides:
 
-- Symmetric Multiprocessing: or how seamlessly it allows an application to
-  leverage parallelism in many-core computers.
+- Multi-core Support: or how seamlessly it allows an application to leverage
+  parallelism in many-core computers.
 
 - Failure Isolation: a process failure should not have an implicit impact on
   the rest of the system.
@@ -45,7 +57,7 @@ This experiment will be evaluated based on how well it provides:
 
 By writing a number of small projects that showcase these capabilities.
 
-{1:design-and-architecture 2. Design and Architecture}
+{1:overview 2. Overview}
 
 [re:actor] is designed to allow web applications to be expressed as a group of
 independent processes that communicate by sending messages to each other, and
@@ -60,26 +72,33 @@ seamlessly.
 />
 %}
 
-The library includes a set of constructs at different levels of abstraction for
-this purpose:
+{2 2.1 Basics}
 
-- Nodes and Schedulers at the Platform-level, and
-- Processes and Mesages at the Application-level.
+Let us start by introducing the basic constructs the library builds upon.
 
-{3 Platform-level Abstractions}
+{b Processes} applications built with [re:actor] consist of running processes.
+These processes model {i tasks} that have to be carried out and {i entities}
+that evolve over time, in the form of {i functions} with associated identities
+and mailboxes. These processes can be as simple as incrementing a counter, or
+as complex as coordinating transactions across other processes. They collaborate
+by {i message-passing}. In practice, processes can blend completely into the
+domain of the application, making them an incredibly versatile abstraction to
+model systems with.
 
-{i Nodes} are responsible for orchestrating schedulers, and they typically map
-1-to-1 with a single computer. If you're running a re:actor application in a
-single browser, on a single computer, you'd normally run a single node. A
-node will make sure there are as many schedulers as machine cores available
-and that they are healthy at all points. They also have run-time information
-about the system they are running on.
+{b Messages} Messages are typed data structures that processes send to each
+other to communicate.
 
-{i Schedulers} are the ones that run processes and deliver messages. Each
-scheduler corresponds to a single event-loop, and this could be either the
-Main Thread of a browser, or a Web Worker. Every time a process send a
-message, it is a scheduler that will make sure it gets delivered.
+{b Schedulers} All processes must be scheduled for execution, and to do this
+there exist schedulers. Processes and their mailboxes live within particular
+schedulers. A scheduler corresponds to a single event-loop, and this could be
+either the Main Thread of a browser, or a Web Worker. Every time a process send
+a message, it is a scheduler that will make sure it gets delivered.
 
+{b Nodes} All schedulers within a running system have to be orchestrated by a
+node. Nodes typically map 1-to-1 with a single computer. If you're running a
+[re:actor] application in a single browser, you'd normally run a single node. A
+node will make sure there are as many schedulers as machine cores available and
+that they are healthy at all points.
 {%html:
 <img
   title="Overall constructs"
@@ -88,29 +107,40 @@ message, it is a scheduler that will make sure it gets delivered.
 />
 %}
 
-{3 Application-level Abstractions}
+{2 2.2 Processes and Behaviors}
 
-{i Processes} are what applications are made of. They represent {i tasks} that
-have to be carried out. In the literature they are also referred to as:
+A Process is in essence a function with an associated identity and a mailbox.
 
-- {i Objects} in Smalltalk,
-- {i Actors} in the Actor-model, or
-- {i Processes} in Erlang.
+{[
+type process = ( func, pid, mailbox );
+]}
 
-They can be short lived or long lived, one-offs or self-scheduling, they can be
-static or change their state over time. These tasks can be as simple as
-incrementing an internal counter and logging out any message that is received,
-or as complex as coordinating transactions across other processes. They are an
-incredibly powerful abstraction to work with.
+Every process has a unique identifier, it's {i pid}, that can be used to locate
+the process and send messages to it's mailbox from anywhere in the node.
 
-[re:actor] applications can consist of hundreds of thousands or even millions
-of processes.
+The function that defines the process is a function from a particular initial
+state to a behavior change. There is a limited number of behaviors that encode
+termination of a process' execution, continuation, and suspension. Additionally,
+a particular mode of suspension catered for performing drawing on the Web is
+included: suspension until the next animation frame. 
+
+{[
+type behavior('s) =
+  | Become('s)
+  | OnAnimationFrame('s)
+  | Suspend(int, 's)
+  | Terminate;
+]}
+
+Every process definition function will take an initial state and return one of
+the above behaviors, making it possible to re-schedule itself by {i becoming} a
+process with the same identity, the same definition function, and a new initial
+state.
+
+{2 2.3 Guaranteed Message-passing}
 
 Processes communicate with other processes via {i message passing}, where a
 message gets copied from the sending process to the receiving process' mailbox.
-
-{i Messages} are data structures that processes send to each other to
-communicate.
 
 Message passing in [re:actor] is {i guaranteed to deliver messages}. However,
 because the behavior of a process consists of application code that might never
@@ -125,27 +155,37 @@ will be consumed.
 />
 %}
 
-Furthermore, a process defines exactly what messages to accept when consuming
-it's mailbox, and should only be able to handle such messages.
+{2 2.4 Typesafe Message-passing}
 
-{1:implementation 3. Implementation}
+To provide further safety, a process must define exactly what messages to accept
+when consuming it's mailbox, and should only be able to handle such messages.
 
-This section describes the current implementation of the [re:actor] library and
-the shortcomings the web platform imposed, split into the following orthogonal
-topics:
+This particular capability is powered by the type-system underneath Reason.
 
-- Process spawning,
-- Fair-scheduling,
-- Guaranteed Message-passing
-- Typesafe Message-passing
+{2 2.5 Seamless Multi-core}
 
-{3:process-spawning Process Spawning}
+By making processes {i relocatable}, they can be started in any of the available
+schedulers.
 
-{3:fair-scheduling Fair Scheduling}
+{2 2.6 Fair Scheduling}
 
-{3:guaranteed-message-passing Guaranteed Message-passing}
+Languages like Erlang or Smalltalk have mechanisms for principledly preemptive
+scheduling, in which the execution of a particular process will be suspended,
+allowing other processes to be executed without any loss of state.
 
-{3:typesafe-message-passing Typesafe Message-passing}
+However, the Web platform and in particular Javascript, have no such mechanisms.
+
+In Javascript, any function that includes an infinite loop will yield a process
+that never terminates, and any function making use of recursion may cause a
+stack-overflow that will crash a process.
+
+Because of this impediments, the scheduling of [re:actor] is designed to entrust
+to the user the responsibility of building processes out of {i total functions}
+that terminate in {i negligible amounts of time}. Naturally, this isn't always
+possible, and when it isn't, the tradeoffs have to be made clear.
+
+If a process' function definition is {i partial} or executes a time-intense
+computation, it will block the scheduler until it terminates. 
 
 {1:conclusion 4. Conclusion}
 

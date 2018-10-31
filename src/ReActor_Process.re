@@ -26,10 +26,10 @@ module Status = {
 };
 
 type behavior('s) =
-  | Terminate
   | Become('s)
+  | OnAnimationFrame('s)
   | Suspend(int, 's)
-  | OnAnimationFrame('s);
+  | Terminate;
 
 type env('s) = {
   self: unit => Pid.t,

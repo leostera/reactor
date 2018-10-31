@@ -74,15 +74,17 @@ module Status: {
   */
 type behavior('s) =
   | /**
-      Indicate that this actor should not become a new actor but instead
-      should be terminated as soon as the current computation completes.
-     */
-    Terminate
-  | /**
       Indicate that this actor should become a new actor with the same
       identifier and mailbox, but with a new state {!'s}.
      */
     Become(
+      's,
+    )
+  | /**
+      Indicate that this actor should {!Become} as soon as the next Animation
+      Frame is available; this is particularly useful for rendering purposes.
+     */
+    OnAnimationFrame(
       's,
     )
   | /**
@@ -94,12 +96,10 @@ type behavior('s) =
       's,
     )
   | /**
-      Indicate that this actor should {!Become} as soon as the next Animation
-      Frame is available; this is particularly useful for rendering purposes.
+      Indicate that this actor should not become a new actor but instead
+      should be terminated as soon as the current computation completes.
      */
-    OnAnimationFrame(
-      's,
-    );
+    Terminate;
 
 /**
   The environment type.
