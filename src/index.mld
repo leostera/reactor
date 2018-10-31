@@ -1,4 +1,4 @@
-{0:top 🚀 re:actor}
+{0:top 🚀 re:actor — Typesafe Message-passing Concurrency for the Web}
 
 [re:actor] is an {e experimental} type-safe, message-passing concurrency
 library. It is not meant for production and has no stable API.
