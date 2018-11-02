@@ -39,7 +39,7 @@ let counter: Process.f(sample) = (_env, state) =&gt; Become({n: state.n + 1});</
   style="width: 100%; margin: 0.5em 0 1em 0;"
   src="/reactor/docs/assets/process-becoming.png"
 />
-<p>How fast will this particular counter increment itself? As fast as it gets scheduled for execution.</p><p>We can schedule this process for execution like this:</p><pre><code class="ml">let counter_pid: Pid.t = spawn(counter, {n: 0});</code></pre><p>But this isn't very useful, since we can't make use of that internal value without recurring to mutable shared state with <code>refs</code>. We avoid communicating by sharing information and instead we share information by communicating.</p><p>Let's instead add another process definition that will show us this data in some form so we verify it is indeed working:</p><pre><code class="ml">/**
+<p>How fast will this particular counter increment itself? As fast as it gets scheduled for execution.</p><p>We can schedule this process for execution like this:</p><pre><code class="ml">let counter_pid: Pid.t = spawn(counter, {n: 0});</code></pre><p>But this isn't very useful, since we can't make use of that internal value without recurring to mutable shared state with <code>refs</code>. We avoid communicating by sharing memory and instead we share memory by communicating.</p><p>Let's instead add another process definition that will show us this data in some form so we verify it is indeed working:</p><pre><code class="ml">/**
   A counter process that will increment it's counter by one on each evaluation
   and will log out a message when the counter reaches a certain number.
   */

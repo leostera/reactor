@@ -255,7 +255,7 @@ let counter_pid: Pid.t = spawn(counter, {n: 0});
 
 But this isn't very useful, since we can't make use of that internal value
 without recurring to mutable shared state with [refs]. We avoid communicating by
-sharing information and instead we share information by communicating.
+sharing memory and instead we share memory by communicating.
 
 Let's instead add another process definition that will show us this data in some
 form so we verify it is indeed working:
