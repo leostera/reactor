@@ -2,8 +2,15 @@ open! ReActor;
 open ReActor_Utils;
 open ReActor_Runtime;
 
+/**
+  Sample state that includes a simple integer counter.
+  */
 type sample = {counter: int};
 
+/**
+  A no-op process that will increment it's counter by one on each evaluation
+  and will log out a message when the counter reaches the number 2112.
+  */
 let noop: Process.f(sample) =
   (env, state) => {
     if (state.counter == 2112) {
@@ -13,6 +20,13 @@ let noop: Process.f(sample) =
     Become({counter: state.counter + 1});
   };
 
+/**
+  A no-op process that will suspend itself for at least 100ms before running
+  again.
+
+  It will compute the current date, and write it down to the console on every
+  execution.
+  */
 let loop_noop: Process.f(sample) =
   (env, state) => {
     let now = Date.now();
@@ -39,6 +53,7 @@ defer(
   },
   1500,
 );
+
 defer(
   () =>
     switch (whereIs("slower_pid")) {
