@@ -38,7 +38,7 @@ test:
 .PHONY: serve
 serve: deps
 	rm -f ./reactor
-	ln -sf ./docs/ ./reactor
+	ln -sf . ./reactor
 	@$(NODE_BIN)/static
 
 .PHONY: clean
