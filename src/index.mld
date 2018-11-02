@@ -273,7 +273,7 @@ let printing_counter: int => Process.f(sample) = (number, _env, state) => {
 };
 ]}
 
-Now spaining one process with behavior [printing_counter(2112)] will eventually
+Now spawning one process with behavior [printing_counter(2112)] will eventually
 print out {i "Reached number 2112"}. A small problem appears when we have
 multiple processes running in this way:
 
@@ -321,12 +321,33 @@ And now running it prints out the identifier of the process on each line:
 %}
 
 {2 3.2 Simple Message Passing}
+{{:https://github.com/ostera/reactor/blob/master/examples/koans/E2_SimpleMessagePassing.re}
+View Source} — {{:/reactor/examples/koans/E2_SimpleMessagePassing.re.html} Run experiment (make sure to have the console open)}.
+
 {2 3.3 Collaborating Processes}
+{{:https://github.com/ostera/reactor/blob/master/examples/koans/E3_CollaboratingProcesses.re}
+View Source} — {{:/reactor/examples/koans/E3_CollaboratingProcesses.re.html} Run experiment (make sure to have the console open)}.
+
 {2 3.4 More Collaborating Processes}
+{{:https://github.com/ostera/reactor/blob/master/examples/koans/E4_MoreCollaboratingProcesses.re}
+View Source} — {{:/reactor/examples/koans/E4_MoreCollaboratingProcesses.re.html} Run experiment (make sure to have the console open)}.
+
 {2 3.5 Processes for the DOM}
+{{:https://github.com/ostera/reactor/blob/master/examples/koans/E5_ProcessesForTheDOM.re}
+View Source} — {{:/reactor/examples/koans/E5_ProcessesForTheDOM.re.html} Run experiment (make sure to have the console open)}.
+
 {2 3.6 Processes with React}
+{{:https://github.com/ostera/reactor/blob/master/examples/koans/E6_ProcessesWithReact.re}
+View Source} — {{:/reactor/examples/koans/E6_ProcessesWithReact.re.html} Run experiment (make sure to have the console open)}.
+
 {2 3.7 Tracing Messages }
+{{:https://github.com/ostera/reactor/blob/master/examples/koans/E7_TracingMessages.re}
+View Source} — {{:/reactor/examples/koans/E7_TracingMessages.re.html} Run experiment (make sure to have the console open)}.
+
 {2 3.8 Processes Orchestrating Processes}
+{{:https://github.com/ostera/reactor/blob/master/examples/koans/E8_ProcesssesOrchestratingProcesses.re}
+View Source} — {{:/reactor/examples/koans/E8_ProcesssesOrchestratingProcesses.re.html} Run experiment (make sure to have the console open)}.
+
 
 {1:conclusion 4. Benchmarks}
 
