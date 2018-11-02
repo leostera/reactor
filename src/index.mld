@@ -83,7 +83,7 @@ seamlessly.
 <img
   title="re:actor powered architecture"
   style="width: 100%; margin: 0.5em 0 1em 0;"
-  src="/docs/assets/high-level-sketch.png"
+  src="/reactor/docs/assets/high-level-sketch.png"
 />
 %}
 
@@ -118,7 +118,7 @@ that they are healthy at all points.
 <img
   title="Overall constructs"
   style="width: 100%; margin: 0.5em 0 1em 0;"
-  src="/docs/assets/constructs-sketch.png"
+  src="/reactor/docs/assets/constructs-sketch.png"
 />
 %}
 
@@ -166,7 +166,7 @@ will be consumed.
 <img
   title="Message-passing"
   style="width: 100%; margin: 0.5em 0 1em 0;"
-  src="/docs/assets/message-passing-sketch.png"
+  src="/reactor/docs/assets/message-passing-sketch.png"
 />
 %}
 
@@ -240,7 +240,7 @@ counter value [n] is incremented by 1 in every step.
 <img
   title="Process becoming a new process with new state"
   style="width: 100%; margin: 0.5em 0 1em 0;"
-  src="/docs/assets/process-becoming.png"
+  src="/reactor/docs/assets/process-becoming.png"
 />
 %}
 
@@ -316,7 +316,7 @@ And now running it prints out the identifier of the process on each line:
 <img
   title="Process becoming a new process with same identifier"
   style="width: 100%; margin: 0.5em 0 1em 0;"
-  src="/docs/assets/process-becoming-with-identity.png"
+  src="/reactor/docs/assets/process-becoming-with-identity.png"
 />
 %}
 
