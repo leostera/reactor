@@ -215,8 +215,8 @@ build web applications.
 
 {2 3.1 Simple Spawning}
 
-{{:https://github.com/ostera/docs/blob/master/examples/koans/E1_SimpleSpawning.re}
-View Source} — {{:/examples/koans/E1_SimpleSpawning.re.html} Run experiment (make sure to have the console open)}.
+{{:https://github.com/ostera/reactor/docs/blob/master/examples/koans/E1_SimpleSpawning.re}
+View Source} — {{:/reactor/examples/koans/E1_SimpleSpawning.re.html} Run experiment (make sure to have the console open)}.
 
 Let us begin with a simple process: a monotonically incremental counter.
 
