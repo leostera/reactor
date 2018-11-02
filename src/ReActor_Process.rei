@@ -111,12 +111,11 @@ type behavior('s) =
     {- use [self] to access it's own [Pid.t] (useful for establishing
     communications). }
     {- Use [recv] to consume messages from their mailbox. }}
-
-  The semantics of [recv] dictate that if the mailbox is **empty**, the process
-  will await for a message to arrive before continuing.
   */
 type env('s) = {
+  /** Get the process identifier for the current process. */
   self: unit => Pid.t,
+  /** Get the next message in the mailbox if there is one. */
   recv: unit => option(Message.t),
 };
 

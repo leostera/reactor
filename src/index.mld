@@ -83,7 +83,7 @@ seamlessly.
 <img
   title="re:actor powered architecture"
   style="width: 100%; margin: 0.5em 0 1em 0;"
-  src="/reactor/assets/high-level-sketch.png"
+  src="/docs/assets/high-level-sketch.png"
 />
 %}
 
@@ -118,7 +118,7 @@ that they are healthy at all points.
 <img
   title="Overall constructs"
   style="width: 100%; margin: 0.5em 0 1em 0;"
-  src="/reactor/assets/constructs-sketch.png"
+  src="/docs/assets/constructs-sketch.png"
 />
 %}
 
@@ -166,7 +166,7 @@ will be consumed.
 <img
   title="Message-passing"
   style="width: 100%; margin: 0.5em 0 1em 0;"
-  src="/reactor/assets/message-passing-sketch.png"
+  src="/docs/assets/message-passing-sketch.png"
 />
 %}
 
@@ -208,17 +208,117 @@ computation, it will block the scheduler until it terminates.
 
 {1:experiments 3. Experiments}
 
-The experiments below (up to number 7th) started off as Koans for the library
-and thus their descriptions are post-facto. Nonetheless, they serve as good
-examples of how to use the library, and to describe additional features
-that were found necessary to build web applications.
+The experiments below (up to number 7th) started off as {i Koans} for the
+library. They serve as good examples of how to use the library, increasing in
+complexity, and to describe additional features that were found necessary to
+build web applications.
 
 {2 3.1 Simple Spawning}
 
-Let us begin with the simplest of applications that can be built with [re:actor]
-to achieve any effect.
+{{:https://github.com/ostera/docs/blob/master/examples/koans/E1_SimpleSpawning.re}
+View Source} — {{:/examples/koans/E1_SimpleSpawning.re.html} Run experiment (make sure to have the console open)}.
 
+Let us begin with a simple process: a monotonically incremental counter.
 
+{[
+/**
+  Sample state that includes a simple integer counter.
+  */
+type sample = {n: int};
+
+/**
+  A counter process that will increment it's counter by one on each evaluation.
+  */
+let counter: Process.f(sample) = (_env, state) => Become({n: state.n + 1});
+]}
+
+This process definition is amongst the simplest possible ones. It defines a
+process that will simply become itself with a new initial state, where the
+counter value [n] is incremented by 1 in every step.
+
+{%html:
+<img
+  title="Process becoming a new process with new state"
+  style="width: 100%; margin: 0.5em 0 1em 0;"
+  src="/docs/assets/process-becoming.png"
+/>
+%}
+
+How fast will this particular counter increment itself? As fast as it gets
+scheduled for execution.
+
+We can schedule this process for execution like this:
+
+{[
+let counter_pid: Pid.t = spawn(counter, {n: 0});
+]}
+
+But this isn't very useful, since we can't make use of that internal value
+without recurring to mutable shared state with [refs]. We avoid communicating by
+sharing information and instead we share information by communicating.
+
+Let's instead add another process definition that will show us this data in some
+form so we verify it is indeed working:
+
+{[
+/**
+  A counter process that will increment it's counter by one on each evaluation
+  and will log out a message when the counter reaches a certain number.
+  */
+let printing_counter: int => Process.f(sample) = (number, _env, state) => {
+  if (state.n == number) {
+    Js.log({j|Reached number $number|j});
+  };
+  Become({n: state.n + 1});
+};
+]}
+
+Now spaining one process with behavior [printing_counter(2112)] will eventually
+print out {i "Reached number 2112"}. A small problem appears when we have
+multiple processes running in this way:
+
+{[
+let p1 = spawn(printing_counter(2112), {n: 0});
+let p2 = spawn(printing_counter(2112), {n: 0});
+let p3 = spawn(printing_counter(2112), {n: 0});
+
+/* eventually... */
+< Reached number 2112
+< Reached number 2112
+< Reached number 2112
+]}
+
+What printing belongs to which process? We can find out information about
+the current process by accessing the {i process environment}: {!
+ReActor_Process.env}. It is available as the [_env] parameter that we see in
+both definitions above. We can use the function {! ReActor_Process.env.self} to
+get the current process identifier, and refactor to print it out:
+
+{[
+let printing_counter: int => Process.f(sample) = (number, env, state) => {
+  if (state.n == number) {
+    let pid = env.self() |> Pid.toString;
+    Js.log({j|$pid :: Reached number $number|j});
+  };
+  Become({n: state.n + 1});
+};
+]}
+
+And now running it prints out the identifier of the process on each line:
+
+{[
+<0,0,1> :: Reached number 2112
+<0,0,3> :: Reached number 2112
+<0,0,2> :: Reached number 2112
+]}
+
+{%html:
+<img
+  title="Process becoming a new process with same identifier"
+  style="width: 100%; margin: 0.5em 0 1em 0;"
+  src="/docs/assets/process-becoming-with-identity.png"
+/>
+%}
 
 {2 3.2 Simple Message Passing}
 {2 3.3 Collaborating Processes}
@@ -239,6 +339,6 @@ to achieve any effect.
 - {{:https://arxiv.org/vc/arxiv/papers/1008/1008.1459v8.pdf}Hewitt's Actor Model
   of Computation}
 - {{:https://mitpress.mit.edu/books/actors}Gul Agha's Actors}
-- {{:https://developer.mozilla.org/en-US/reactor/Web/API/Web_Workers_API} Web
+- {{:https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API} Web
   Workers }
 - {{:http://www-inst.eecs.berkeley.edu/~n252/paper/Amdahl.pdf} Amdahl's Law} 
