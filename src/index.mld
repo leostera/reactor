@@ -1,4 +1,4 @@
-{0:top 🚀 re:actor — Typesafe Message-passing Concurrency for the Web}
+{0:top 🚀 re:actor — Bringing Typesafe Message-passing Concurrency to the Web}
 
 [re:actor] is an {e experimental} type-safe, message-passing concurrency
 library. It is not meant for production and has no stable API.
@@ -19,6 +19,19 @@ For the top-level library module see {!ReActor}.
       {li {{:#2.5-seamless-multi-core} Seamless Multi-core}}
       {li {{:#2.6-fair-scheduling} Fair Scheduling}}
       }}
+  {li {{:#experiments} Experiments}
+    {ol
+      {li {{:#3.1-simple-spawning} Simple Spawning}}
+      {li {{:#3.2-simple-message-passing} Simple Message Passing}}
+      {li {{:#3.3-collaborating-processes} Collaborating Processes}}
+      {li {{:#3.4-more-collaborating-processes} More Collaborating Processes}}
+      {li {{:#3.5-processes-for-the-dom} Processes for the DOM}}
+      {li {{:#3.6-processes-with-react} Processes with React}}
+      {li {{:#3.7-tracing-messages} Tracing Messages }}
+      {li {{:#3.8-processes-orchestrating-processes} Processes Orchestrating
+      Processes}}
+      }}
+  {li {{:#benchmarks} Benchmarks}}
   {li {{:#conclusion} Conclusion}}
   {li {{:#references} References}}}
 {%html:
@@ -32,11 +45,11 @@ not effectively leverage the many-core architectures available. This means that
 in a many-core computer, where a web application could be potentially executing
 many parallel actions at once, it typically executes only one.
 
-The appearance of Web Workers changed this by allowing arbitrary Javascript code
-to be executed in a separate event-loop that can communicate with the main event
-loop via message passing and transferrable data structures. To this day it still
-is not trivial to leverage them: given they are very coarse low-level features,
-any higher-level concurrency feature is left to be implemented at the
+The appearance of Web Workers changed this by allowing arbitrary Javascript
+code to be executed in a separate event-loop that can communicate with the main
+event loop via message passing and transferable data structures. To this day it
+still is not trivial to leverage them: given they are very coarse low-level
+features, any higher-level concurrency feature is left to be implemented at the
 application level.
 
 To aggravate this issue, a failure or resource-starvation in the main program
@@ -157,6 +170,10 @@ will be consumed.
 />
 %}
 
+To guarantee message passing, the [send] function available to all processes
+within a node is {i synchronous} and will fail if the message could not be
+effectively copied to the receiving mailbox.
+
 {2 2.4 Typesafe Message-passing}
 
 To provide further safety, a process must define exactly what messages to accept
@@ -189,9 +206,33 @@ possible, and when it isn't, the tradeoffs have to be made clear.
 If a process' function definition is {i partial} or executes a time-intense
 computation, it will block the scheduler until it terminates. 
 
-{1:conclusion 3. Conclusion}
+{1:experiments 3. Experiments}
 
-{1:references 4. References}
+The experiments below (up to number 7th) started off as Koans for the library
+and thus their descriptions are post-facto. Nonetheless, they serve as good
+examples of how to use the library, and to describe additional features
+that were found necessary to build web applications.
+
+{2 3.1 Simple Spawning}
+
+Let us begin with the simplest of applications that can be built with [re:actor]
+to achieve any effect.
+
+
+
+{2 3.2 Simple Message Passing}
+{2 3.3 Collaborating Processes}
+{2 3.4 More Collaborating Processes}
+{2 3.5 Processes for the DOM}
+{2 3.6 Processes with React}
+{2 3.7 Tracing Messages }
+{2 3.8 Processes Orchestrating Processes}
+
+{1:conclusion 4. Benchmarks}
+
+{1:conclusion 5. Conclusion}
+
+{1:references 6. References}
 
 - {{:https://en.wikipedia.org/wiki/Smalltalk}Smalltalk}
 - {{:http://www.erlang.org/}Erlang} and {{:https://elixir-lang.org/}Elixir}
