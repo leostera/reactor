@@ -71,16 +71,17 @@ This experiment will be evaluated based on how well it provides:
 - Failure Isolation: a process failure should not have an implicit impact on
   the rest of the system.
 
-- Type-safe Message Passing: processes can be checked handle all of the messages
-  they expect to handle at compile time.
+- Type-safe Message Passing: processes can be checked to handle all of the
+  messages they expect to handle at compile time.
 
-By writing a number of small projects that showcase these capabilities.
+These evaluation will be carried out by writing a number of small projects that
+showcase these capabilities.
 
 {1:overview 2. Overview}
 
 [re:actor] is designed to allow web applications to be expressed as a group of
-independent processes that communicate by sending messages to each other, and
-can run leveraging the entire of their host machines available computing power
+independent processes that communicate by sending messages to each other,
+leveraging the entirety of their host's available computing power
 seamlessly.
 
 {%html:
