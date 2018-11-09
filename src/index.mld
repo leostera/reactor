@@ -206,10 +206,15 @@ stack-overflow that will crash a process.
 Because of this impediments, the scheduling of [re:actor] is designed to entrust
 to the user the responsibility of building processes out of {i total functions}
 that terminate in {i negligible amounts of time}. Naturally, this isn't always
-possible, and when it isn't, the tradeoffs have to be made clear.
+possible, and when it isn't, the tradeoff has to be made clear:
 
 If a process' function definition is {i partial} or executes a time-intense
 computation, it will block the scheduler until it terminates. 
+
+As a rule of thumb, keeping processes focused will yield better overall
+performance. If you see a process growing in complexity, consider refactoring it
+into a family of processes that either sequence the work or can perform it in
+parallel.
 
 {1:experiments 3. Experiments}
 
