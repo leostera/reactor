@@ -193,9 +193,9 @@ schedulers.
 
 {2 2.6 Fair Scheduling}
 
-Languages like Erlang or Smalltalk have mechanisms for principledly preemptive
-scheduling, in which the execution of a particular process will be suspended,
-allowing other processes to be executed without any loss of state.
+Languages like Erlang or Smalltalk have mechanisms for principled preemptive
+scheduling, in which the execution of a particular process will be suspended
+without any loss of state, allowing other processes to be executed.
 
 However, the Web platform and in particular Javascript, have no such mechanisms.
 
