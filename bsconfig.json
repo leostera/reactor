@@ -19,14 +19,18 @@
       "subdirs": true
     },
   ],
-  "package-specs": {
+  "package-specs": [{
+    "module": "commonjs",
+    "in-source": false
+  }, {
     "module": "es6-global",
     "in-source": false
-  },
+  }],
   "suffix": ".bs.js",
   "bs-dependencies": [
     "rebench",
     "reason-react",
+    "bsdoc",
   ],
   "reason": {
     "react-jsx": 2

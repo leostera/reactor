@@ -1,7 +1,7 @@
 @charset "UTF-8";
 /* Copyright (c) 2016 Daniel C. Bünzli. All rights reserved.
    Distributed under the ISC license, see terms at the end of the file.
-   odoc v1.1.1-775-gab866a13 */
+   odoc 1.3.0 */
 
 /* Fonts */
 @import url('https://fonts.googleapis.com/css?family=Fira+Mono:400,500');
@@ -65,12 +65,7 @@ body {
 /* Basic markup elements */
 
 b, strong {
-  font-family: "Fira Sans", Helvetica, Arial, sans-serif;
   font-weight: 500;
-  margin: 0.5em 0.7em 0.5em 0;
-  padding-top: 0.1em;
-  line-height: 1.2;
-  overflow-wrap: break-word;
 }
 
 i, em {
@@ -207,22 +202,18 @@ h1 {
   margin-top: 1.214em;
 }
 
-h1 {
+h2 {
   font-weight: 500;
   font-size: 1.953em;
   box-shadow: 0 1px 0 0 #ddd;
 }
 
-h2 {
+h3 {
   font-size: 1.563em;
 }
 
-h3 {
+h4 {
   font-size: 1.25em;
-}
-
-h6 {
-  display: inline-block;
 }
 
 small, .font_small {
@@ -244,15 +235,10 @@ h3 code, h3 tt {
   font-weight: inherit;
 }
 
-h3 code, h3 tt {
+h4 code, h4 tt {
   font-size: inherit;
   font-weight: inherit;
 }
-
-h4 {
-  font-size: 1.12em;
-}
-
 
 /* Preformatted and code */
 
@@ -606,7 +592,7 @@ h1+.modules, h1+.sel {
   top: 0px;
   bottom: 0px;
   left: 0px;
-  max-width: 40ex;
+  max-width: 30ex;
   min-width: 26ex;
   width: 20%;
   background: #f6f8fa;
@@ -655,19 +641,6 @@ h1+.modules, h1+.sel {
   border-left: 1px solid #ccc;
   margin-left: 5px;
   padding-left: 12px;
-}
-
-.toc ol li p {
-  margin-bottom: 0px;
-}
-
-.toc ol ol {
-  margin-top: 0px;
-  margin-bottom: 0px;
-}
-
-.toc ol ol li {
-  margin-left: 14px;
 }
 
 /* Mobile adjustements. */

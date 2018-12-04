@@ -1,5 +1,6 @@
 NODE_BIN=./node_modules/.bin
 BSB=$(NODE_BIN)/bsb
+BSDOC=$(NODE_BIN)/bsdoc
 
 .PHONY: deps
 deps:
@@ -7,8 +8,7 @@ deps:
 
 .PHONY: docs
 docs: build
-	@./scripts/mk-docs.sh ReActor ./lib/bs/src ./src "*.cmti"
-	@./scripts/mk-docs.sh Examples ./lib/bs/examples ./examples "*.cmt"
+	@$(BSDOC) build ReActor
 
 .PHONY: spec-docs
 spec-docs:

@@ -2,6 +2,13 @@
 # yarn lockfile v1
 
 
+"@elliottcable/bs-cmdliner@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@elliottcable/bs-cmdliner/-/bs-cmdliner-1.0.2.tgz#825b3351d3beee7def38f7603b81e2a8bb73e939"
+  integrity sha512-jjxxtT/lJO0pQfPbxP3uZKV+E0/WVoT0f8GZvozbZXV19DdNKnFz91yERbI/VhwsY11nkqF6h5FWAWEF8lBj6Q==
+  dependencies:
+    bs-platform "^4.0.1"
+
 asap@~2.0.3:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/asap/-/asap-2.0.6.tgz#e50347611d7e690943208bbdafebcbc2fb866d46"
@@ -13,9 +20,17 @@ benchmark@^2.1.4:
     lodash "^4.17.4"
     platform "^1.3.3"
 
-bs-platform@^4.0.5:
-  version "4.0.5"
-  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-4.0.5.tgz#d4fd9bbdd11765af5b75110a5655065ece05eed6"
+bs-platform@^4.0.1, bs-platform@^4.0.7:
+  version "4.0.7"
+  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-4.0.7.tgz#1a0bbf0fef439fef5f1a88ba60d5ac8a6d73570c"
+  integrity sha512-39ZXSugB03PznE7eSVwxq5z4S8Cn44r22T2eFd7rgFQ94HaB/mCNHXG0epF3mJLYhhhyPT9w3e/t+FAIjSdAkg==
+
+bsdoc@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/bsdoc/-/bsdoc-0.1.0.tgz#506882e05269bbe04e0b0b17dadd93c3558409cc"
+  integrity sha512-xSzvs1MKnx27PYsiNlr9qyka127U4yGD80p19qLGp2st70iSJdSvWAP/H//Ee+9PzJHNz0CD8pbHkGpC7hbcZA==
+  dependencies:
+    "@elliottcable/bs-cmdliner" "^1.0.2"
 
 colors@>=0.6.0:
   version "1.3.1"
