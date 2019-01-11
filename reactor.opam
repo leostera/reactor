@@ -1,0 +1,18 @@
+opam-version: "2.0"
+name: "reactor"
+version: "0.1"
+synopsis: "Actor-model Library"
+maintainer: "Leandro Ostera <leandro@ostera.io>"
+authors: "Leandro Ostera <leandro@ostera.io>"
+license: "MIT"
+homepage: "https//github.com/ostera/reactor"
+bug-reports: "https//github.com/ostera/reactor/issues"
+depends: [
+  "fmt"
+  "logs"
+
+  "dune" {build}
+  "reason" {build}
+]
+build: ["dune" "build" "-p" name]
+install: ["dune" "install" name "--prefix" prefix "--root" "."]
