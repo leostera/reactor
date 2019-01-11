@@ -53,7 +53,7 @@ let exit: Process.Pid.t => unit;
   Registers a [pid] under a given [name] in this [node]
 
   Multiple processes might be registered under the same [name] but only the
-  first one will be retrieved when searching for it with `[whereIs]`
+  first one will be retrieved when searching for it with `[where_is]`
   */
 let register: (string, Process.Pid.t) => Process.Pid.t;
 
@@ -66,7 +66,7 @@ let register: (string, Process.Pid.t) => Process.Pid.t;
   Returns None if no process was found, or Some([Pid.t]) if some process was
   found
   */
-let whereIs: string => option(Process.Pid.t);
+let where_is: string => option(Process.Pid.t);
 
 /**
   Sending messages to processes is a core functionality of [ReActor] It's the

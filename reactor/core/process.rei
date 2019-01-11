@@ -57,7 +57,7 @@ module Status: {
   In essence, if an actor's main function looks like:
 
   {[
-    let proc: Processf(int) = (_, counter) => Become(counter + 1)
+    let proc: Process.f(int) = (_, counter) => Become(counter + 1)
   ]}
 
   Then this actor will increment it's internal counter by 1 on every scheduled
@@ -66,7 +66,7 @@ module Status: {
   A slightly different actor:
 
   {[
-    let proc: Processf(int) = (_, counter) => Suspend(counter, counter+1)
+    let proc: Process.f(int) = (_, counter) => Suspend(counter, counter+1)
   ]}
 
   Will be indefinitely scheduled (like the one above) and wait {!counter}
@@ -140,9 +140,9 @@ type t = {
   mailbox: ref(list(Message.t)),
 };
 
-let markAsDead: t => unit;
+let mark_as_dead: t => unit;
 
-let keepAlive: t => unit;
+let keep_alive: t => unit;
 
 let send: (Message.t, t) => unit;
 

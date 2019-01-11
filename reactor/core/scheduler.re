@@ -14,16 +14,19 @@ type t = {
   tracer: option(Tracer.t),
 };
 
-let nextPid = ({id: (node_name, scheduler_id), process_count}) =>
+let next_pid = ({id: (node_name, scheduler_id), process_count}) =>
   Process.Pid.make(node_name, scheduler_id, process_count + 1);
 
-let byProcessCount = (a, b) => compare(a^.process_count, b^.process_count);
+let by_process_count = (a, b) => compare(a^.process_count, b^.process_count);
 
-let leastBusy = workers => workers |> List.sort(byProcessCount) |> List.hd;
+let least_busy = workers => workers |> List.sort(by_process_count) |> List.hd;
 
-let pidToSid = ((node_name, scheduler_id, _)) => (node_name, scheduler_id);
+let pid_to_sid = ((node_name, scheduler_id, _)) => (
+  node_name,
+  scheduler_id,
+);
 
-let findById = i => List.find(s => s^.id == i);
+let find_by_id = i => List.find(s => s^.id == i);
 
 let make = node_name => {
   id: Sid.make(node_name),
@@ -33,7 +36,7 @@ let make = node_name => {
 };
 
 let spawn = (f, args, scheduler) => {
-  let pid = scheduler^ |> nextPid;
+  let pid = scheduler^ |> next_pid;
 
   let process = Process.make(pid, f, args);
 
@@ -50,7 +53,7 @@ let spawn = (f, args, scheduler) => {
 let exit = (pid, scheduler) =>
   scheduler^.processes
   |> List.find(p => Process.(p.pid == pid))
-  |> Process.markAsDead;
+  |> Process.mark_as_dead;
 
 let send = (pid, msg, scheduler) => {
   switch (scheduler^.tracer) {

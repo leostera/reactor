@@ -41,9 +41,9 @@ type t = {
   mailbox: ref(list(Message.t)),
 };
 
-let markAsDead = p => p.status := Dead;
+let mark_as_dead = p => p.status := Dead;
 
-let keepAlive = p => p.status := Alive;
+let keep_alive = p => p.status := Alive;
 
 let send = (msg, process) => {
   process.mailbox := List.append(process.mailbox^, [msg]);

@@ -30,15 +30,15 @@ type t = {
   tracer: option(Tracer.t),
 };
 
-let nextPid: t => Process.Pid.t;
+let next_pid: t => Process.Pid.t;
 
-let byProcessCount: (ref(t), ref(t)) => int;
+let by_process_count: (ref(t), ref(t)) => int;
 
-let leastBusy: list(ref(t)) => ref(t);
+let least_busy: list(ref(t)) => ref(t);
 
-let pidToSid: Process.Pid.t => Sid.t;
+let pid_to_sid: Process.Pid.t => Sid.t;
 
-let findById: (Sid.t, list(ref(t))) => ref(t);
+let find_by_id: (Sid.t, list(ref(t))) => ref(t);
 
 /**
   Create an empty scheduler given a [node_name]

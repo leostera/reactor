@@ -59,7 +59,7 @@ let register: (t, string, Process.Pid.t) => Process.Pid.t;
 /**
   Lookup the [name] in the [node] registry Returns a [Pid.t] if it found one
  */
-let whereIs: (t, string) => option(Process.Pid.t);
+let where_is: (t, string) => option(Process.Pid.t);
 
 /**
   Find the [process] to send a [message] to by [pid], given that the [pid]

@@ -13,7 +13,7 @@ let exit = Node.exit(__main);
 
 let register = Node.register(__main);
 
-let whereIs = Node.whereIs(__main);
+let where_is = Node.where_is(__main);
 
 let send = Node.send(__main);
 

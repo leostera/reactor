@@ -28,11 +28,11 @@ let trace = (node, tracer) =>
 /* TODO(@ostera): Rename this to `spawnInMain` since we can only spawn
    functions directly on the Main Thread */
 let spawn = (node, f, args) =>
-  node.schedulers |> Scheduler.leastBusy |> Scheduler.spawn(f, args);
+  node.schedulers |> Scheduler.least_busy |> Scheduler.spawn(f, args);
 
 let exit = (node, pid) =>
   node.schedulers
-  |> Scheduler.findById(Scheduler.pidToSid(pid))
+  |> Scheduler.find_by_id(Scheduler.pid_to_sid(pid))
   |> Scheduler.exit(pid);
 
 let register = (node, name, pid) => {
@@ -40,7 +40,7 @@ let register = (node, name, pid) => {
   pid;
 };
 
-let whereIs = (node, name) => {
+let where_is = (node, name) => {
   let byName = List.find(((name', _pid)) => name == name');
   switch (node.registry^ |> byName) {
   | (_name, pid) => Some(pid)
@@ -50,5 +50,5 @@ let whereIs = (node, name) => {
 
 let send = (node, pid, message) =>
   node.schedulers
-  |> Scheduler.(findById(pidToSid(pid)))
+  |> Scheduler.(find_by_id(pid_to_sid(pid)))
   |> Scheduler.send(pid, message);
