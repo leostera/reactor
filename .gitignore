@@ -9,4 +9,8 @@ spec/*.toolbox
 *.zip
 tags
 *.swp
-reactor
+
+_build
+_esy
+esy.lock
+*.install
