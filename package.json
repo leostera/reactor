@@ -1,18 +1,33 @@
 {
-  "name": "@ostera/reactor",
+  "name": "reactor",
   "version": "0.0.1-alpha",
-  "keywords": [
-    "BuckleScript"
-  ],
+  "keywords": [ "Actor-model", "actor", "concurrency" ],
   "author": "Leandro Ostera <leandro@ostera.io>",
   "license": "MIT",
-  "devDependencies": {
-    "bs-platform": "^4.0.7",
-    "node-static": "^0.7.10",
-    "rebench": "^0.0.2-alpha",
-    "bsdoc": "^0.1.0"
+  "esy": {
+    "build": "refmterr dune build -p #{self.name}",
+    "NOTE": "Optional release Section. Customizes result of `esy release`",
+    "release": { "bin": [ "Hello.exe" ] }
   },
   "dependencies": {
-    "reason-react": "^0.5.3"
+    "@esy-ocaml/reason": "*",
+    "@opam/fmt": "*",
+    "@opam/logs": "*",
+    "@opam/lwt": "4.1.0",
+    "ocaml": "~4.6.0",
+    "refmterr": "*"
+  },
+  "resolutions": {
+    "@opam/httpkit": "ostera/httpkit:httpkit.opam#c1c32c1",
+    "@opam/httpkit-lwt": "ostera/httpkit:httpkit-lwt.opam#c1c32c1",
+    "@opam/httpaf": "anmonteiro/httpaf:httpaf.opam#57e9dd2",
+    "@opam/httpaf-lwt": "anmonteiro/httpaf:httpaf-lwt.opam#57e9dd2"
+  },
+  "devDependencies": {
+    "@opam/dune": "*",
+    "@opam/httpkit": "*",
+    "@opam/httpkit-lwt": "*",
+    "@opam/merlin": "*",
+    "ocaml": "~4.6.0"
   }
 }
