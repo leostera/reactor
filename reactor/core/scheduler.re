@@ -1,22 +1,21 @@
-open ReActor_Process;
-open ReActor_Utils;
-open ReActor_Tracer;
-
 module Sid = {
   type t = (string, string);
-  let make = node_name => (node_name, Random.shortId());
-  let toString = ((node_name, scheduler_id)) => {j|<$node_name.$scheduler_id>|j};
+  let make = node_name => (
+    node_name,
+    Random.int(1000000000) |> string_of_int,
+  );
+  let to_string = ((node_name, scheduler_id)) => {j|<$node_name$scheduler_id>|j};
 };
 
 type t = {
   id: Sid.t,
-  processes: list(ReActor_Process.t),
+  processes: list(Process.t),
   process_count: int,
-  tracer: option(ReActor_Tracer.t),
+  tracer: option(Tracer.t),
 };
 
 let nextPid = ({id: (node_name, scheduler_id), process_count}) =>
-  Pid.make(node_name, scheduler_id, process_count + 1);
+  Process.Pid.make(node_name, scheduler_id, process_count + 1);
 
 let byProcessCount = (a, b) => compare(a^.process_count, b^.process_count);
 
@@ -36,7 +35,7 @@ let make = node_name => {
 let spawn = (f, args, scheduler) => {
   let pid = scheduler^ |> nextPid;
 
-  let process = ReActor_Process.make(pid, f, args);
+  let process = Process.make(pid, f, args);
 
   let scheduler' = {
     ...scheduler^,
@@ -48,31 +47,33 @@ let spawn = (f, args, scheduler) => {
   pid;
 };
 
-let exit: (Pid.t, ref(t)) => unit =
-  (pid, scheduler) =>
-    scheduler^.processes
-    |> List.find(p => p.pid == pid)
-    |> ReActor_Process.markAsDead;
+let exit = (pid, scheduler) =>
+  scheduler^.processes
+  |> List.find(p => Process.(p.pid == pid))
+  |> Process.markAsDead;
 
 let send = (pid, msg, scheduler) => {
   switch (scheduler^.tracer) {
-  | Some(tracer) => ReActor_Tracer.trace(tracer, pid, msg)
+  | Some(tracer) => Tracer.trace(tracer, pid, msg)
   | None => ()
   };
   scheduler^.processes
-  |> List.find(p => p.pid == pid)
-  |> ReActor_Process.send(msg);
+  |> List.find(p => Process.(p.pid == pid))
+  |> Process.send(msg);
 };
 
 let trace = (tracer, scheduler) => {
-  let timeout = tracer.timeout;
-  Js.log({j|[ReActor] Tracer setup for $timeout  ms.|j});
+  let timeout = Tracer.(tracer.timeout);
+  Logs.debug(m => m("[ReActor] Tracer setup for %d ms", timeout));
   scheduler := {...scheduler^, tracer: Some(tracer)};
-  ReActor_Runtime.defer(
-    () => {
-      scheduler := {...scheduler^, tracer: None};
-      Js.log({j|[ReActor] Tracer stopped after $timeout ms.|j});
-    },
-    timeout,
-  );
+  /*
+   Runtimedefer(
+     () => {
+       scheduler := {...scheduler^, tracer: None};
+       Logs.debug({j|[ReActor] Tracer. stopped after $timeout ms|j});
+     },
+     timeout,
+   );
+   */
+  ();
 };

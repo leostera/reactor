@@ -1,5 +1,3 @@
-open ReActor_Runtime;
-
 module Message = {
   type t = ..;
 };
@@ -11,7 +9,7 @@ module Pid = {
     scheduler_id,
     process_number,
   );
-  let toString = ((node_name, scheduler_id, process_number)) => {j|<$node_name.$scheduler_id.$process_number>|j};
+  let to_string = ((node_name, scheduler_id, process_number)) => {j|<$node_name$scheduler_id$process_number>|j};
 };
 
 module Status = {
@@ -19,7 +17,7 @@ module Status = {
     | Alive
     | Dead;
 
-  let toString: t => string =
+  let to_string: t => string =
     fun
     | Alive => "alive"
     | Dead => "dead";
@@ -27,7 +25,6 @@ module Status = {
 
 type behavior('s) =
   | Become('s)
-  | OnAnimationFrame('s)
   | Suspend(int, 's)
   | Terminate;
 
@@ -66,12 +63,21 @@ let make = (pid, f, initial_args) => {
   let rec run = args =>
     switch (f(env, args)) {
     | exception ex =>
-      Js.log({j|Process Terminated: $process threw $ex|j});
+      Logs.debug(m =>
+        m(
+          "Process Terminated: %s threw %s",
+          process.pid |> Pid.to_string,
+          ex |> Printexc.to_string,
+        )
+      );
       process.status := Dead;
     | Terminate => process.status := Dead
-    | OnAnimationFrame(newState) => onAnimationFrame(() => run(newState))
-    | Suspend(delay, newState) => defer(() => run(newState), delay)
-    | Become(newState) => nextTick(() => run(newState))
+    | Suspend(delay, newState) =>
+      /* defer(() => run(newState), delay) */
+      ()
+    | Become(newState) =>
+      /* nextTick(() => run(newState)) */
+      ()
     }
   and env = {self: () => pid, recv: recv(process)};
   let _ = run(initial_args);
