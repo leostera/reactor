@@ -1,0 +1,5 @@
+(executable
+  (name e1)
+  (public_name e1)
+  (package reactor-lwt)
+  (libraries reactor-lwt logs logs.fmt fmt fmt.tty))
