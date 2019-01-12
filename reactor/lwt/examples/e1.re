@@ -19,4 +19,4 @@ let printing_counter: Process.task(sample) =
 
 Array.make(10, 0) |> Array.map(i => S.spawn(s, printing_counter, {n: i}));
 
-S.run(s);
+S.run();
