@@ -12,6 +12,7 @@ module type SCHEDULER = {
   let make: unit => t;
   let spawn: (t, Process.task('state), 'state) => Pid.t;
   let run: unit => unit;
+  let send: (t, Pid.t, Message.t) => unit;
 };
 
 module Make = (M: BASE) : SCHEDULER => {
@@ -27,7 +28,7 @@ module Make = (M: BASE) : SCHEDULER => {
       | Some(pid) => pid |> Pid.next
       };
     let proc = pid |> Process.make;
-    let env = Process.{self: () => pid};
+    let env = Process.{self: () => pid, recv: Process.recv(proc)};
 
     let unreg = () =>
       scheduler.process_registry :=
@@ -57,4 +58,11 @@ module Make = (M: BASE) : SCHEDULER => {
   };
 
   let run = M.run;
+
+  let send = (scheduler, pid, msg) => {
+    switch (Registry.find(scheduler.process_registry^, pid)) {
+    | None => ()
+    | Some(proc) => Process.send(proc, msg)
+    };
+  };
 };
