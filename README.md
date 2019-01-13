@@ -5,7 +5,6 @@
 
 ## Local Setup
 
-Make sure you have `yarn` installed. Then run `make world` and that'll pull all
-the deps and start the autocompilation.
+This project is setup and run with `esy`, so make sure you have that installed.
 
-Run `make serve` to start a tiny static file server to browse the examples.
+After that it's an `esy install` and `esy build` away.
