@@ -2,11 +2,15 @@ open Lwt.Infix;
 
 let work_queue = Queue.create();
 
+module Runtime = {
+  let defer = t => {
+    Queue.add(t, work_queue);
+  };
+};
+
 module Scheduler =
   Reactor.Scheduler.Make({
-    let defer = t => {
-      Queue.add(t, work_queue);
-    };
+    let defer = Runtime.defer;
 
     let run = _scheduler => {
       let rec consume = () => {
