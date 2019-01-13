@@ -1,3 +1,6 @@
+/**
+  Example 1: Simple spawning of a process that doesn't terminate.
+  */
 open Reactor;
 
 /** Setup loggers */

@@ -1,5 +1,20 @@
 (executable
   (name e1)
   (public_name e1)
+  (modules e1)
+  (package reactor-lwt)
+  (libraries reactor-lwt logs logs.fmt fmt fmt.tty))
+
+(executable
+  (name e2)
+  (public_name e2)
+  (modules e2)
+  (package reactor-lwt)
+  (libraries reactor-lwt logs logs.fmt fmt fmt.tty))
+
+(executable
+  (name e3)
+  (public_name e3)
+  (modules e3)
   (package reactor-lwt)
   (libraries reactor-lwt logs logs.fmt fmt fmt.tty))
