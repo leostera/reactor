@@ -1,5 +1,5 @@
-# 🚀 re:actor
-> A Reasonably-typed Actor-model Library for the Browser
+# 🚀 reactor
+> A Reasonably-typed Actor-model Library
 
 **Status**: EXPERIMENT. Not ready to be used anywhere.
 
