@@ -1,0 +1,4 @@
+(executable
+  (name runtime_test)
+  (libraries reactor reactor.scheduler
+    logs logs.fmt fmt fmt.tty))
