@@ -7,9 +7,6 @@ let start = policy => {
 };
 
 let send = (pid, msg) => {
-  let worker = Coordinator.current() |> Coordinator.worker_for_pid(~pid);
-  switch (worker) {
-  | None => ()
-  | Some(w) => Worker.enqueue_message_for_pid(w, ~pid, ~msg)
-  };
+  Coordinator.current()
+  |> Coordinator.handle_task(~task=Bytecode.Send_message(pid, msg));
 };

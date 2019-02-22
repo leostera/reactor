@@ -9,20 +9,57 @@ type t = {
 
 let id = t => t.id;
 
-let pipes = t => (
-  `To_worker(t.pipe_to_worker),
-  `From_worker(t.pipe_from_worker),
-);
+let wait_next_available = workers => {
+  let read_fds =
+    workers |> Seq.fold_left((fds, w) => [w.pipe_from_worker, ...fds], []);
+
+  switch (
+    Platform.Process.select(
+      ~read=read_fds,
+      ~write=[],
+      ~except=[],
+      ~timeout=-1.0,
+    )
+  ) {
+  | (`Read(ins), _, _) when List.length(ins) > 0 =>
+    let cmds =
+      ins
+      |> List.to_seq
+      |> Seq.map(fd => {
+           let marshalled_instruction_size = 57;
+           let raw =
+             Platform.Process.read(fd, ~len=marshalled_instruction_size);
+           let cmd: Bytecode.t = Marshal.from_bytes(raw, 0);
+           cmd;
+         });
+
+    `Receive(cmds);
+  | _ => `Wait
+  /*
+   | (_, `Write(outs), _) when List.length(outs) > 0 =>
+     let cmd = Task_queue.next(tasks);
+     let raw = Marshal.to_bytes(cmd, [Marshal.Closures]);
+     outs |> List.iter(Platform.Process.write(~buf=raw));
+     do_loop();
+     */
+  };
+};
 
 let start = () => {
   switch (Platform.Process.piped_fork()) {
   | `In_child(`Write(to_parent), `Read(_from_parent)) =>
     /* On Worker */
     let pid = Platform.Process.pid();
-    let str = Printf.sprintf("hello from %i!", pid);
-    let buf = Marshal.to_bytes(str, []);
+    let task =
+      Bytecode.Send_message(
+        Model.Pid.make(0, 0, 0),
+        Model.Message.Debug("what"),
+      );
+    let buf = Marshal.to_bytes(task, []);
+    let write = Platform.Process.write(to_parent);
     let rec loopy = () => {
-      Platform.Process.write(~fd=to_parent, ~buf);
+      write(~buf);
+      Unix.sleep(2);
       loopy();
       ();
     };
@@ -43,5 +80,3 @@ let start = () => {
     })
   };
 };
-
-let enqueue_message_for_pid = (_worker, ~pid as _, ~msg as _) => ();
