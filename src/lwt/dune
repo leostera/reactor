@@ -1,4 +1,0 @@
-(library
-  (name reactor_lwt)
-  (public_name reactor-lwt)
-  (libraries reactor lwt lwt.unix))
