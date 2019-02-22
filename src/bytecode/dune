@@ -1,0 +1,4 @@
+(library
+  (name bytecode)
+  (public_name reactor.bytecode)
+  (libraries reactor.model))
