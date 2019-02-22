@@ -15,7 +15,7 @@ let configure = policy => {
 };
 
 let loop = workers => {
-  Logs.app(m => m("Beginning Scheduling loop..."));
+  Logs.debug(m => m("Beginning Scheduling loop..."));
 
   let read_fds =
     Worker_registry.workers(workers)
@@ -27,29 +27,38 @@ let loop = workers => {
          [],
        );
 
-  let rec work = () => {
-    switch (Unix.select(~read=read_fds, ~write=[], ~except=[], ~timeout=-1.0)) {
-    | (ins, _, _) when List.length(ins) > 0 =>
-      Logs.debug(m => m("Select awoke!"));
+  let rec sync = () => {
+    switch (
+      Platform.Process.select(
+        ~read=read_fds,
+        ~write=[],
+        ~except=[],
+        ~timeout=-1.0,
+      )
+    ) {
+    | (`Read(ins), _, _) when List.length(ins) > 0 =>
       ins
       |> List.iter(fd => {
-           let ic = Unix.in_channel_of_descr(fd);
-           Logs.debug(m => m("Opened in_channel...\n%!"));
-           let str: string = Marshal.from_channel(ic);
-           Logs.debug(m => m("Read: %s\n%!", str));
+           let marshalled_instruction_size = 38;
+           let raw =
+             Platform.Process.read(~fd, ~len=marshalled_instruction_size);
+           let str: string = Marshal.from_bytes(raw, 0);
+           Logs.debug(m => m("Read: %s", str));
+           ();
          });
-      work();
-    | _ => work()
+      sync();
+    | _ => sync()
     };
   };
 
-  work();
+  sync();
 };
 
 let start = () => {
   let {policy, workers} = current();
 
-  Array.make(Policy.worker_count(policy), None)
+  Policy.worker_count(policy)
+  |> (size => Array.make(size, None))
   |> Array.iteri((_, _) =>
        switch (Worker.start()) {
        | Some(worker) =>

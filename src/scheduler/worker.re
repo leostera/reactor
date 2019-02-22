@@ -15,48 +15,32 @@ let pipes = t => (
 );
 
 let start = () => {
-  let (worker_out, worker_in) = Unix.pipe();
-  let (coord_out, coord_in) = Unix.pipe();
-
-  switch (Unix.fork()) {
-  | 0 =>
+  switch (Platform.Process.piped_fork()) {
+  | `In_child(`Write(to_parent), `Read(_from_parent)) =>
     /* On Worker */
-    let pid = Unix.getpid();
-    try (
-      {
-        Unix.close(coord_in);
-        Unix.close(worker_out);
-        /* Prepare worker initial state */
-        /* Setup read/write loop by reading from coord_out and writing to worker_in */
-        let rec loopy = () => {
-          let str = Printf.sprintf("hello from %i!", pid);
-          let len = str |> String.length;
-          let oc = Unix.out_channel_of_descr(worker_in);
-          Marshal.to_channel(oc, str, [Marshal.Closures]);
-          Logs.app(m => m("[%i] Writing %d bytes", pid, len));
-          Unix.sleep(5);
-          loopy();
-          ();
-        };
-        loopy();
-        None;
-      }
-    ) {
-    | e =>
+    let pid = Platform.Process.pid();
+    let str = Printf.sprintf("hello from %i!", pid);
+    let buf = Marshal.to_bytes(str, []);
+    let rec loopy = () => {
+      Platform.Process.write(~fd=to_parent, ~buf);
+      loopy();
+      ();
+    };
+    switch (loopy()) {
+    | exception e =>
       let err = Printexc.to_string(e);
       Logs.err(m => m("Uncaught exception in worker (pid %i): %s", pid, err));
       exit(1);
+    | _ => None
     };
-  | child_pid =>
-    /* On Coordinator */
-    Unix.close(worker_in);
-    Unix.close(coord_out);
+
+  | `In_parent(`Child_pid(pid), `Write(to_worker), `Read(from_worker)) =>
     Some({
-      id: child_pid,
-      unix_pid: child_pid,
-      pipe_to_worker: coord_in,
-      pipe_from_worker: worker_out,
-    });
+      id: pid,
+      unix_pid: pid,
+      pipe_to_worker: to_worker,
+      pipe_from_worker: from_worker,
+    })
   };
 };
 
