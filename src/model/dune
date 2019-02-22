@@ -1,0 +1,5 @@
+(library
+  (name model)
+  (public_name reactor.model)
+  (libraries fmt logs))
+

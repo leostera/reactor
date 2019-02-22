@@ -1,5 +1,0 @@
-(library
-  (name reactor)
-  (public_name reactor)
-  (libraries fmt logs))
-
