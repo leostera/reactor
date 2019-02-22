@@ -1,0 +1,7 @@
+(library
+  (name scheduler)
+  (public_name reactor.scheduler)
+  (libraries
+    reactor.model
+    platform
+    logs unix))
