@@ -5,13 +5,13 @@ let pipe = () => {
   (`Read(r), `Write(w));
 };
 
-let write = (~fd, ~buf) => {
+let write = (fd, ~buf) => {
   let len = buf |> Bytes.length;
   let _ = Unix.write(fd, ~buf, ~pos=0, ~len);
   ();
 };
 
-let read = (~fd, ~len) => {
+let read = (fd, ~len) => {
   let buf = Bytes.create(256);
   let rec read_pipe = (pos, len) => {
     switch (Unix.read(fd, ~buf, ~pos, ~len)) {
