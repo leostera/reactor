@@ -1,5 +1,3 @@
-module Unix = UnixLabels;
-
 type t = {
   policy: Policy.t,
   workers: Worker_registry.t,
@@ -15,46 +13,8 @@ let __global_coordinator: ref(t) =
 
 let current = () => __global_coordinator^;
 
-let configure = policy => {
-  __global_coordinator := {...__global_coordinator^, policy};
-};
-
-let loop = (workers, tasks) => {
-  Logs.debug(m => m("Beginning Scheduling loop..."));
-
-  let rec do_loop = () => {
-    let next = Worker_registry.workers(workers) |> Worker.wait_next_available;
-    switch (next) {
-    | `Receive(cmds) =>
-      cmds
-      |> Seq.fold_left((q, cmd) => Task_queue.queue(q, cmd), tasks)
-      |> ignore;
-
-      let task_list =
-        Task_queue.to_seq(tasks)
-        |> Seq.map(Bytecode.to_string)
-        |> List.of_seq;
-
-      Logs.debug(m =>
-        m("Current Task Queue (%d tasks):", task_list |> List.length)
-      );
-
-      Logs.debug(m => m("%s", task_list |> String.concat("\n\t —")));
-
-      do_loop();
-
-    | _ =>
-      /* _wrks |> Seq.iter(Worker.send_task(task)); */
-
-      do_loop()
-    };
-  };
-
-  do_loop();
-};
-
-let start = () => {
-  let {policy, workers, tasks} = current();
+let prepare = () => {
+  let {policy, workers, _} = current();
 
   Policy.worker_count(policy)
   |> (size => Array.make(size, None))
@@ -67,7 +27,7 @@ let start = () => {
        }
      );
 
-  Logs.app(m =>
+  Logs.debug(m =>
     m(
       "Spawned %d out of %d workers: %s",
       policy |> Policy.worker_count,
@@ -79,15 +39,73 @@ let start = () => {
       |> String.concat(", "),
     )
   );
-
-  loop(workers, tasks);
 };
 
-let worker_for_pid = (coordinator, ~pid) => {
-  let {worker_id, _}: Model.Pid.view = Model.Pid.view(pid);
-  Worker_registry.find(coordinator.workers, worker_id);
+let setup = policy => {
+  __global_coordinator := {...__global_coordinator^, policy};
+  prepare();
 };
 
-let handle_task = (coordinator, ~task) => {
-  Task_queue.queue(coordinator.tasks, task) |> ignore;
+let run = () => {
+  let {workers, tasks, _} = current();
+  Logs.debug(m => m("Beginning scheduling loop..."));
+
+  let rec do_loop = () => {
+    let next = Worker_registry.workers(workers) |> Worker.wait_next_available;
+    switch (next) {
+    | `Receive(cmds) =>
+      cmds |> Seq.fold_left(Task_queue.queue, tasks) |> ignore
+    | `Send(wrkrs) =>
+      switch (Task_queue.next(tasks)) {
+      | None => ()
+      | Some(task) => wrkrs |> Seq.iter(Worker.send_task(task))
+      }
+    | `Wait => ()
+    };
+    do_loop();
+  };
+
+  do_loop();
+};
+
+module Tasks = {
+  let send_message = (coordinator, ~pid, ~msg) => {
+    Logs.debug(m =>
+      m("Sending message to pid %s", pid |> Model.Pid.to_string)
+    );
+    Bytecode.Send_message(pid, msg)
+    |> Task_queue.queue(coordinator.tasks)
+    |> ignore;
+  };
+
+  let spawn = (coordinator, ~task, ~state) => {
+    let least_busy_worker =
+      coordinator.workers
+      |> Worker_registry.workers
+      |> List.of_seq
+      |> Worker.least_busy;
+
+    let pid =
+      switch (least_busy_worker) {
+      | Some(worker) =>
+        let (worker', new_pid) = worker |> Worker.next_pid;
+        let worker_id = worker' |> Worker.id |> Int32.of_int;
+
+        Worker_registry.update(coordinator.workers, worker_id, worker')
+        |> ignore;
+
+        Bytecode.Spawn(new_pid, task, state)
+        |> Task_queue.queue(coordinator.tasks)
+        |> ignore;
+
+        new_pid;
+      | None => Model.Pid.make(0, 0, 0)
+      };
+
+    Logs.debug(m =>
+      m("Spawning process with pid %s", pid |> Model.Pid.to_string)
+    );
+
+    pid;
+  };
 };

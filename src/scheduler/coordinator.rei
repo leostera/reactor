@@ -3,12 +3,13 @@
   */
 type t;
 
-let configure: Policy.t => unit;
+let setup: Policy.t => unit;
 
-let start: unit => unit;
+let run: unit => unit;
 
 let current: unit => t;
 
-let worker_for_pid: (t, ~pid: Model.Pid.t) => option(Worker.t);
-
-let handle_task: (t, ~task: Bytecode.t) => unit;
+module Tasks: {
+  let send_message: (t, ~pid: Model.Pid.t, ~msg: Model.Message.t) => unit;
+  let spawn: (t, ~task: Model.Process.task('a), ~state: 'a) => Model.Pid.t;
+};
