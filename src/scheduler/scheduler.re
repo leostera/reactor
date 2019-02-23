@@ -1,12 +1,14 @@
 module Policy = Policy;
 module Coordinator = Coordinator;
 
-let start = policy => {
-  Coordinator.configure(policy);
-  Coordinator.start();
-};
+let setup = Coordinator.setup;
+
+let run = Coordinator.run;
 
 let send = (pid, msg) => {
-  Coordinator.current()
-  |> Coordinator.handle_task(~task=Bytecode.Send_message(pid, msg));
+  Coordinator.current() |> Coordinator.Tasks.send_message(~pid, ~msg);
+};
+
+let spawn = (task, state) => {
+  Coordinator.current() |> Coordinator.Tasks.spawn(~task, ~state);
 };
