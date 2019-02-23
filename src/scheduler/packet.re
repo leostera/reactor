@@ -1,0 +1,30 @@
+let header_size = 32;
+
+let encode = data => {
+  let raw_data = Marshal.to_bytes(data, [Marshal.Closures]);
+  let data_size = raw_data |> Bytes.length;
+  let raw_size = Marshal.to_bytes(data_size, []);
+  let buf = Buffer.create(data_size + header_size);
+  switch (header_size - (raw_size |> Bytes.length)) {
+  | 0 => ()
+  | n => Buffer.add_bytes(buf, Bytes.create(n) |> Bytes.map(_ => ' '))
+  };
+  Buffer.add_bytes(buf, raw_size);
+  Buffer.add_bytes(buf, raw_data);
+  let bytes = buf |> Buffer.to_bytes;
+  Logs.debug(m =>
+    m("[Packet] Encoding: header=%d data=%d ", header_size, data_size)
+  );
+  bytes;
+};
+
+let read_from_pipe = (`Read(pipe)) => {
+  let raw_size = Platform.Process.read(pipe, ~len=header_size);
+  let data_size = raw_size |> Bytes.trim |> (x => Marshal.from_bytes(x, 0));
+  Logs.debug(m =>
+    m("[Packet] Reading: header=%d data=%d", header_size, data_size)
+  );
+  let raw_data = Platform.Process.read(pipe, ~len=data_size);
+  let bytes = Marshal.from_bytes(raw_data, 0);
+  bytes;
+};
