@@ -15,3 +15,5 @@ let next = q => {
 };
 
 let to_seq = Queue.to_seq;
+
+let length = Queue.length;
