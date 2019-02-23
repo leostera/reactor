@@ -9,18 +9,11 @@ type task('s) = (env('s), 's) => behavior('s);
 
 type t = {
   pid: Pid.t,
-  mailbox: Queue.t(Message.t),
+  mailbox: Mailbox.t,
 };
 
-let send = (proc, msg) => {
-  Queue.push(msg, proc.mailbox);
-};
+let send = (proc, msg) => Mailbox.send(proc.mailbox, msg);
 
-let recv = (proc, ()) => {
-  switch (Queue.pop(proc.mailbox)) {
-  | exception Queue.Empty => None
-  | msg => Some(msg)
-  };
-};
+let recv = (proc, ()) => Mailbox.recv(proc.mailbox);
 
-let make = pid => {pid, mailbox: Queue.create()};
+let make = pid => {pid, mailbox: Mailbox.create()};
