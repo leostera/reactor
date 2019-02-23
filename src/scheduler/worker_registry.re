@@ -21,6 +21,12 @@ let unregister = (r, key) => {
   r;
 };
 
+let update = (r, key, value) => {
+  unregister(r, key) |> ignore;
+  register(r, key, value) |> ignore;
+  r;
+};
+
 let size = Table.length;
 
 let ids = Table.to_seq_keys;

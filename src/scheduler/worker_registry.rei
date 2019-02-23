@@ -8,6 +8,8 @@ let register: (t, Int32.t, Worker.t) => t;
 
 let unregister: (t, Int32.t) => t;
 
+let update: (t, Int32.t, Worker.t) => t;
+
 let size: t => int;
 
 let ids: t => Seq.t(Int32.t);
