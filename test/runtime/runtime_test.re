@@ -17,14 +17,8 @@ module Test_actor = {
   module Message = {
     type t = [ | `Hola];
 
-    let encode =
-      fun
-      | `Hola => "Hola";
-
-    let decode =
-      fun
-      | "Hola" => Some(`Hola)
-      | _ => None;
+    let encode: t => string = x => Marshal.to_string(x, []);
+    let decode: string => t = x => Marshal.from_string(x, 0);
 
     let say_hi = pid => pid <- (`Hola |> encode);
   };
@@ -35,8 +29,7 @@ module Test_actor = {
       switch (env.recv()) {
       | Some(msg) =>
         switch (msg |> Message.decode) {
-        | Some(`Hola) => Logs.app(m => m("Hola!"))
-        | _ => ()
+        | `Hola => Logs.app(m => m("Hola!"))
         };
         `Become(state);
       | _ => `Become(state)
