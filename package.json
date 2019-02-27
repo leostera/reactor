@@ -15,7 +15,6 @@
     "@esy-ocaml/reason": "*",
     "@opam/fmt": "*",
     "@opam/logs": "*",
-    "@opam/lwt": "4.1.0",
     "@opam/odoc": "*",
     "ocaml": "~4.7.0",
     "refmterr": "*"
