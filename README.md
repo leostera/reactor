@@ -1,7 +1,7 @@
 # 🚀 reactor
 > Native Actors for Reason and OCaml
 
-**Status**: ALPHA. Not ready to be used anywhere.
+**Status**: ALPHA. Ready to play around with it.
 
 ## Local Setup
 
