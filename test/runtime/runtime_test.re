@@ -1,10 +1,11 @@
 /** Logging setup */
 Fmt_tty.setup_std_outputs();
-Logs.set_level(Some(Logs.App));
+Logs.set_level(Some(Logs.Info));
 Logs.set_reporter(Logs_fmt.reporter());
 
 /** System setup */
 let _ = Scheduler.Policy.default() |> Scheduler.setup;
+/* let _ = Scheduler.Policy.custom(~worker_count=1) |> Scheduler.setup; */
 
 module System = {
   let spawn = Scheduler.spawn;

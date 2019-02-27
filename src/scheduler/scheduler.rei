@@ -1,6 +1,7 @@
 module Policy: {
   type t;
   let default: unit => t;
+  let custom: (~worker_count: int) => t;
 };
 
 let setup: Policy.t => unit;
