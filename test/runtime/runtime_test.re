@@ -14,18 +14,23 @@ open System;
 
 /** Application setup */
 module Test_actor = {
-  type Model.Message.t +=
-    | Hola;
+  module Message = {
+    type t = [ | `Hola];
+
+    let encode: t => string = x => Marshal.to_string(x, []);
+    let decode: string => t = x => Marshal.from_string(x, 0);
+
+    let say_hi = pid => pid <- (`Hola |> encode);
+  };
 
   let loop: Model.Process.task(unit) =
     (env, state) => {
       Logs.app(m => m("Looping Test Actor"));
       switch (env.recv()) {
-      | Some(Hola) =>
-        Logs.app(m => m("Hola!"));
-        `Become(state);
-      | Some(Model.Message.Debug(str)) =>
-        Logs.app(m => m("%s", str));
+      | Some(msg) =>
+        switch (msg |> Message.decode) {
+        | `Hola => Logs.app(m => m("Hola!"))
+        };
         `Become(state);
       | _ => `Become(state)
       };
@@ -35,9 +40,6 @@ module Test_actor = {
 };
 
 let pid = Test_actor.start();
-let _ = pid <- Test_actor.Hola;
-
-let pid2 = Test_actor.start();
-let _ = pid2 <- Model.Message.Debug("no way josey");
+let _ = Test_actor.Message.say_hi(pid);
 
 Scheduler.run();
