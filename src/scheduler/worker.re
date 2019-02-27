@@ -69,6 +69,8 @@ module Child = {
 
   let __global_worker: ref(option(t)) = ref(None);
 
+  let current = () => __global_worker^;
+
   let setup = (~pid, `Write(to_parent), `Read(from_parent)) => {
     __global_worker :=
       Some({
@@ -211,7 +213,6 @@ module Child = {
       | _ => ()
       };
 
-      Unix.sleep(1);
       do_loop();
     };
     switch (do_loop()) {

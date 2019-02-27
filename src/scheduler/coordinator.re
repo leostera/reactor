@@ -27,7 +27,7 @@ let prepare = () => {
        }
      );
 
-  Logs.debug(m =>
+  Logs.info(m =>
     m(
       "Spawned %d out of %d workers: %s",
       policy |> Policy.worker_count,
@@ -69,16 +69,25 @@ let run = () => {
 };
 
 module Tasks = {
-  let send_message = (coordinator, ~pid, ~msg) => {
-    Logs.debug(m =>
-      m("Sending message to pid %s", pid |> Model.Pid.to_string)
-    );
-    Bytecode.Send_message(pid, msg)
-    |> Task_queue.queue(coordinator.tasks)
-    |> ignore;
+  let send_message = (~pid, ~msg) => {
+    switch (Worker.Child.current()) {
+    | Some(worker) =>
+      `From_worker(Bytecode.Send_message(pid, msg))
+      |> Task_queue.queue(worker.tasks)
+      |> ignore
+    | None =>
+      let coordinator = __global_coordinator^;
+      Logs.debug(m =>
+        m("Sending message to pid %s", pid |> Model.Pid.to_string)
+      );
+      Bytecode.Send_message(pid, msg)
+      |> Task_queue.queue(coordinator.tasks)
+      |> ignore;
+    };
   };
 
-  let spawn = (coordinator, ~task, ~state) => {
+  let spawn_from_coordinator = (task, state) => {
+    let coordinator = current();
     let least_busy_worker =
       coordinator.workers
       |> Worker_registry.workers
@@ -100,6 +109,26 @@ module Tasks = {
 
         new_pid;
       | None => Model.Pid.make(0, 0, 0)
+      };
+
+    pid;
+  };
+
+  let spawn_in_worker:
+    (Worker.Child.t, Model.Process.task('a), 'a) => Model.Pid.t =
+    (worker, task, state) => {
+      let new_pid = worker.last_pid |> Model.Pid.next;
+      `From_worker(Bytecode.Spawn(new_pid, task, state))
+      |> Task_queue.queue(worker.tasks)
+      |> ignore;
+      new_pid;
+    };
+
+  let spawn = (~task, ~state) => {
+    let pid =
+      switch (Worker.Child.current()) {
+      | Some(worker) => spawn_in_worker(worker, task, state)
+      | None => spawn_from_coordinator(task, state)
       };
 
     Logs.debug(m =>
