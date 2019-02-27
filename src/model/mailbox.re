@@ -1,4 +1,4 @@
-type t = Queue.t(Message.t);
+type t('m) = Queue.t('m);
 
 let send = (mailbox, msg) => {
   Queue.push(msg, mailbox);

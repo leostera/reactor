@@ -2,8 +2,10 @@ type t;
 
 let create: unit => t;
 
-let find: (t, Pid.t) => option(Process.t);
+let find: (t, Process.Pid.t('m)) => option(Process.Process.t('m));
 
-let register: (t, Pid.t, Process.t) => t;
+let register: (t, Process.Pid.t('m), Process.Process.t('m)) => unit;
 
-let unregister: (t, Pid.t) => t;
+let unregister: (t, Process.Pid.t('m)) => unit;
+
+let length: t => int;

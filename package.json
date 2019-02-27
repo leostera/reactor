@@ -4,25 +4,25 @@
   "keywords": [ "Actor-model", "actor", "concurrency" ],
   "author": "Leandro Ostera <leandro@ostera.io>",
   "license": "MIT",
-  "esy": {
-    "build": "refmterr dune build -p #{self.name}",
-    "NOTE": ""
-  },
+  "esy": { "build": "refmterr dune build -p #{self.name}", "NOTE": "" },
   "scripts": {
     "open-docs": "open #{self.target_dir}/default/_doc/_html/index.html"
   },
   "dependencies": {
     "@esy-ocaml/reason": "*",
+    "@opam/containers": "2.5",
     "@opam/fmt": "*",
+    "@opam/gmap": "0.2.1",
+    "@opam/hmap": "0.8.1",
     "@opam/logs": "*",
     "@opam/lwt": "4.1.0",
     "@opam/odoc": "*",
+    "@opam/utop": "2.3.0",
+    "@opam/uuidm": "0.9.6",
     "ocaml": "~4.7.0",
     "refmterr": "*"
   },
-  "resolutions": {
-    "@opam/odoc": "link:../odoc/odoc.opam"
-  },
+  "resolutions": { "@opam/odoc": "link:../odoc/odoc.opam" },
   "devDependencies": {
     "@opam/dune": "*",
     "@opam/merlin": "*",

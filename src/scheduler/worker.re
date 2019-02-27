@@ -5,13 +5,13 @@ type t = {
   unix_pid: int,
   pipe_to_worker: Unix.file_descr,
   pipe_from_worker: Unix.file_descr,
-  last_pid: Model.Pid.t,
+  last_pid: Model.Pid.view,
   process_count: int,
 };
 
 let id = t => t.id;
 
-let last_pid = t => t.last_pid;
+let last_pid = t => t.last_pid |> Model.Pid.to_t;
 
 let least_busy = workers => {
   let by_process_count = (w1, w2) => w1.process_count - w2.process_count;
@@ -51,18 +51,21 @@ let wait_next_available = workers => {
 };
 
 module Child = {
+  open Model;
+
   type task = [
     | `From_coordinator(Bytecode.t)
     | `From_worker(Bytecode.t)
     | `Reduction(unit => unit)
   ];
+
   type t = {
     id: int,
     unix_pid: int,
     pipe_to_coordinator: Unix.file_descr,
     pipe_from_coordinator: Unix.file_descr,
-    last_pid: Model.Pid.t,
-    processes: Model.Registry.t,
+    last_pid: Pid.view,
+    processes: Registry.t,
     process_count: int,
     tasks: Task_queue.t(task),
   };
@@ -76,8 +79,8 @@ module Child = {
         unix_pid: pid,
         pipe_to_coordinator: to_parent,
         pipe_from_coordinator: from_parent,
-        last_pid: Model.Pid.make(0, pid, 0),
-        processes: Model.Registry.create(),
+        last_pid: Pid.(make(0, pid, 0) |> view),
+        processes: Registry.create(),
         process_count: 0,
         tasks: Task_queue.create(),
       });
@@ -85,12 +88,18 @@ module Child = {
   };
 
   let handle_spawn = (worker, pid, task, state) => {
-    open Model;
-
     let proc = Process.make(pid);
-    let env = Process.{self: () => pid, recv: Model.Process.recv(proc)};
+    let env = Process.{self: () => pid, recv: Process.recv(proc)};
 
     Registry.register(worker.processes, pid, proc) |> ignore;
+    Logs.debug(m =>
+      m(
+        "[%i] Registered proc #%i with pid %s",
+        Platform.Process.pid(),
+        Registry.length(worker.processes),
+        pid |> Pid.to_string,
+      )
+    );
 
     let rec run_process = args =>
       switch (task(env, args)) {
@@ -121,22 +130,32 @@ module Child = {
   };
 
   let handle_send_message = (worker, pid, msg) => {
-    switch (Model.Registry.find(worker.processes, pid)) {
-    | None => ()
+    Logs.debug(m =>
+      m(
+        "[%i] Sending message to one of %d pids",
+        Platform.Process.pid(),
+        Registry.length(worker.processes),
+      )
+    );
+    switch (Registry.find(worker.processes, pid)) {
+    | None =>
+      Logs.debug(m =>
+        m("Could not find process with pid: %s", pid |> Pid.to_string)
+      )
     | Some(proc) =>
-      /** NOTE: send mutates the processes mailbox */
-      Model.Process.send(proc, msg);
-      Logs.debug(m => m("Sent message to %s", pid |> Model.Pid.to_string));
+      /** NOTE: send mutates the processes mailbox */ Process.send(proc, msg);
+      Logs.debug(m => m("Sent message to %s", pid |> Pid.to_string));
     };
   };
 
   let should_handle_task_locally = task => {
-    switch (task) {
-    | Bytecode.Send_message(pid, _)
-    | Bytecode.Spawn(pid, _, _) =>
-      let {Model.Pid.worker_id, _} = pid |> Model.Pid.view;
-      Platform.Process.pid() |> Int32.of_int |> Int32.equal(worker_id);
-    };
+    let {Pid.worker_id, _} =
+      switch (task) {
+      | Bytecode.Send_message(pid, _) => pid |> Pid.view
+      | Bytecode.Spawn(pid, _, _) => pid |> Pid.view
+      };
+
+    Platform.Process.pid() |> Int32.of_int |> Int32.equal(worker_id);
   };
 
   let handle_coordinator_task = (worker, `From_coordinator(task)) => {
@@ -240,7 +259,7 @@ let start = () => {
       unix_pid: pid,
       pipe_to_worker: to_worker,
       pipe_from_worker: from_worker,
-      last_pid: Model.Pid.make(0, pid, 0),
+      last_pid: Model.Pid.(make(0, pid, 0) |> view),
       process_count: 0,
     })
   };
@@ -252,6 +271,13 @@ let send_task = (task, worker) => {
 };
 
 let next_pid = worker => {
-  let pid = worker.last_pid |> Model.Pid.next;
-  ({...worker, last_pid: pid, process_count: worker.process_count + 1}, pid);
+  let pid = Model.Pid.(worker.last_pid |> to_t |> next);
+  (
+    {
+      ...worker,
+      last_pid: pid |> Model.Pid.view,
+      process_count: worker.process_count + 1,
+    },
+    pid,
+  );
 };

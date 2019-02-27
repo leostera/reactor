@@ -8,26 +8,23 @@ let _ = Scheduler.Policy.default() |> Scheduler.setup;
 
 module System = {
   let spawn = Scheduler.spawn;
-  let (<-) = (pid, msg) => Scheduler.send(pid, msg);
+  let (<-) = Scheduler.send;
 };
 open System;
 
 /** Application setup */
 module Test_actor = {
-  type Model.Message.t +=
+  type message =
     | Hola;
 
-  let loop: Model.Process.task(unit) =
+  let loop: Model.Process.task(unit, message) =
     (env, state) => {
       Logs.app(m => m("Looping Test Actor"));
       switch (env.recv()) {
       | Some(Hola) =>
         Logs.app(m => m("Hola!"));
         `Become(state);
-      | Some(Model.Message.Debug(str)) =>
-        Logs.app(m => m("%s", str));
-        `Become(state);
-      | _ => `Become(state)
+      | None => `Become(state)
       };
     };
 
@@ -36,8 +33,10 @@ module Test_actor = {
 
 let pid = Test_actor.start();
 let _ = pid <- Test_actor.Hola;
-
-let pid2 = Test_actor.start();
-let _ = pid2 <- Model.Message.Debug("no way josey");
+let _ = pid <- Test_actor.Hola;
+let _ = pid <- Test_actor.Hola;
+let _ = pid <- Test_actor.Hola;
+let _ = pid <- Test_actor.Hola;
+let _ = pid <- Test_actor.Hola;
 
 Scheduler.run();

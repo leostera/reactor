@@ -1,7 +1,7 @@
-type t;
+type t('m);
 
-let send: (t, Message.t) => unit;
+let send: (t('m), 'm) => unit;
 
-let recv: t => option(Message.t);
+let recv: t('m) => option('m);
 
-let create: unit => t;
+let create: unit => t('m);

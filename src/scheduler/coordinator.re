@@ -47,10 +47,10 @@ let setup = policy => {
 };
 
 let run = () => {
-  let {workers, tasks, _} = current();
   Logs.debug(m => m("Beginning scheduling loop..."));
 
   let rec do_loop = () => {
+    let {workers, tasks, _} = current();
     let next = Worker_registry.workers(workers) |> Worker.wait_next_available;
     switch (next) {
     | `Receive(cmds) =>
