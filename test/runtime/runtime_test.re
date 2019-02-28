@@ -4,8 +4,8 @@ Logs.set_level(Some(Logs.Info));
 Logs.set_reporter(Logs_fmt.reporter());
 
 /** System setup */
-let _ = Reactor.Scheduler.(Policy.default() |> setup);
-/* let _ = Scheduler.Policy.custom(~worker_count=1) |> Scheduler.setup; */
+Reactor.Scheduler.(Policy.default() |> setup);
+/* Scheduler.Policy.custom(~worker_count=1) |> Scheduler.setup; */
 
 open Reactor.System;
 
