@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@esy-ocaml/sdl2": "esy-ocaml/SDL-mirror#4c156f3b581296674a8e245bfaabdc0b8eb5e3c4",
+    "@opam/conf-pkg-config": "*"
+  }
+}

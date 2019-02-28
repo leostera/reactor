@@ -12,5 +12,4 @@ tags
 
 _build
 _esy
-esy.lock
 *.install
