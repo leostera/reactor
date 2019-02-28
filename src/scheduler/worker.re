@@ -61,7 +61,7 @@ module Child = {
     unix_pid: int,
     pipe_to_coordinator: Unix.file_descr,
     pipe_from_coordinator: Unix.file_descr,
-    last_pid: Model.Pid.t,
+    last_pid: ref(Model.Pid.t),
     processes: Model.Registry.t,
     process_count: int,
     tasks: Task_queue.t(task),
@@ -78,7 +78,7 @@ module Child = {
         unix_pid: pid,
         pipe_to_coordinator: to_parent,
         pipe_from_coordinator: from_parent,
-        last_pid: Model.Pid.make(0, pid, 0),
+        last_pid: ref(Model.Pid.make(0, pid, 0)),
         processes: Model.Registry.create(),
         process_count: 0,
         tasks: Task_queue.create(),
@@ -104,7 +104,7 @@ module Child = {
             ex |> Printexc.to_string,
           )
         )
-      | `Terminate => ()
+      | `Terminate => Registry.unregister(worker.processes, pid) |> ignore
       | `Become(next_state) =>
         Task_queue.queue(
           worker.tasks,

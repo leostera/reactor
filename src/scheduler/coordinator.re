@@ -117,7 +117,9 @@ module Tasks = {
   let spawn_in_worker:
     (Worker.Child.t, Model.Process.task('a), 'a) => Model.Pid.t =
     (worker, task, state) => {
-      let new_pid = worker.last_pid |> Model.Pid.next;
+      let new_pid = worker.last_pid^ |> Model.Pid.next;
+      worker.last_pid := new_pid;
+
       `From_worker(Bytecode.Spawn(new_pid, task, state))
       |> Task_queue.queue(worker.tasks)
       |> ignore;
