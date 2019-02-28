@@ -1,0 +1,4 @@
+(executable
+  (name spawn)
+  (libraries reactor 
+    logs logs.fmt fmt fmt.tty))
