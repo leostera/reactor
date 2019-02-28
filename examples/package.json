@@ -11,7 +11,9 @@
     "reactor": "*",
     "refmterr": "*"
   },
-  "resolutions": { "reactor": "link:../reactor.opam" },
+  "resolutions": {
+    "reactor": "github:ostera/reactor:reactor.opam#e01501faa3773dd9d03c9166f8f03df7422ebf5f"
+  },
   "devDependencies": {
     "@opam/dune": "*",
     "@opam/merlin": "*",
