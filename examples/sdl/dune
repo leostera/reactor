@@ -1,0 +1,4 @@
+(executable
+  (name gui_test)
+  (libraries reactor tsdl
+    logs logs.fmt fmt fmt.tty))

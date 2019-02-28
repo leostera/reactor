@@ -1,0 +1,20 @@
+{
+  "name": "reactor-examples",
+  "version": "0.0.0",
+  "esy": { "build": "refmterr dune build -p #{self.name}", "NOTE": "" },
+  "dependencies": {
+    "@esy-ocaml/reason": "*",
+    "@opam/fmt": "*",
+    "@opam/logs": "*",
+    "@opam/tsdl": "0.9.6",
+    "ocaml": "~4.7.0",
+    "reactor": "*",
+    "refmterr": "*"
+  },
+  "resolutions": { "reactor": "link:../reactor.opam" },
+  "devDependencies": {
+    "@opam/dune": "*",
+    "@opam/merlin": "*",
+    "ocaml": "~4.7.0"
+  }
+}
