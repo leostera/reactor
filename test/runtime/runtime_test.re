@@ -4,31 +4,27 @@ Logs.set_level(Some(Logs.Info));
 Logs.set_reporter(Logs_fmt.reporter());
 
 /** System setup */
-let _ = Scheduler.Policy.default() |> Scheduler.setup;
+let _ = Reactor.Scheduler.(Policy.default() |> setup);
 /* let _ = Scheduler.Policy.custom(~worker_count=1) |> Scheduler.setup; */
 
-module System = {
-  let spawn = Scheduler.spawn;
-  let (<-) = (pid, msg) => Scheduler.send(pid, msg);
-};
-open System;
+open Reactor.System;
 
 /** Application setup */
 module Test_actor = {
   module Message = {
-    type t = [ | `Forward(Model.Pid.t, string) | `Print(string)];
+    type t = [ | `Forward(Reactor.Pid.t, string) | `Print(string)];
 
     let encode: t => string = x => Marshal.to_string(x, []);
     let decode: string => t = x => Marshal.from_string(x, 0);
 
-    let print: (Model.Pid.t, string) => unit =
+    let print: (Reactor.Pid.t, string) => unit =
       (pid, text) => pid <- (`Print(text) |> encode);
 
-    let fwd: (Model.Pid.t, ~target: Model.Pid.t, string) => unit =
+    let fwd: (Reactor.Pid.t, ~target: Reactor.Pid.t, string) => unit =
       (pid, ~target, text) => pid <- (`Forward((target, text)) |> encode);
   };
 
-  let loop: Model.Process.task(unit) =
+  let loop: Reactor.Process.task(unit) =
     (env, state) => {
       switch (env.recv()) {
       | Some(msg) =>
@@ -50,4 +46,4 @@ let pid_2 = Test_actor.start();
 Test_actor.Message.print(pid_1, "hello reactor!");
 Test_actor.Message.fwd(pid_2, ~target=pid_1, "forwarded message!");
 
-Scheduler.run();
+Reactor.Scheduler.run();

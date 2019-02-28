@@ -1,4 +1,5 @@
 (executable
   (name runtime_test)
-  (libraries reactor.scheduler
+  (libraries
+    reactor
     logs logs.fmt fmt fmt.tty))
