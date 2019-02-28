@@ -15,12 +15,9 @@
     "@esy-ocaml/reason": "*",
     "@opam/fmt": "*",
     "@opam/logs": "*",
-    "@opam/odoc": "*",
+    "@opam/odoc": "1.3.0",
     "ocaml": "~4.7.0",
     "refmterr": "*"
-  },
-  "resolutions": {
-    "@opam/odoc": "link:../odoc/odoc.opam"
   },
   "devDependencies": {
     "@opam/dune": "*",
