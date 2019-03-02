@@ -1,5 +1,5 @@
 (executable
-  (name runtime_test)
+  (name async_test)
   (libraries
     reactor
     logs logs.fmt fmt fmt.tty))

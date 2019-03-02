@@ -105,6 +105,35 @@ module Child = {
           )
         )
       | `Terminate => Registry.unregister(worker.processes, pid) |> ignore
+      | `Defer(next_state_promise) =>
+        Lwt.on_success(next_state_promise, next_state =>
+          run_process(next_state)
+        );
+        let rec reduction = () =>
+          Task_queue.queue(
+            worker.tasks,
+            `Reduction(
+              () => {
+                Logs.info(m =>
+                  m("%s executing defer reduction", pid |> Pid.to_string)
+                );
+
+                Lwt_engine.iter(true);
+
+                let count =
+                  Lwt_engine.timer_count()
+                  + Lwt_engine.readable_count()
+                  + Lwt_engine.writable_count();
+
+                if (count > 0) {
+                  reduction();
+                };
+              },
+            ),
+          )
+          |> ignore;
+
+        reduction();
       | `Become(next_state) =>
         Task_queue.queue(
           worker.tasks,
