@@ -94,7 +94,25 @@ module Child = {
 
     Registry.register(worker.processes, pid, proc) |> ignore;
 
-    let rec run_process = args =>
+    let rec run_process = args => {
+      let queue_reduction = next_state =>
+        Task_queue.queue(
+          worker.tasks,
+          `Reduction(
+            () => {
+              Logs.debug(m =>
+                m("%s executing reduction", pid |> Pid.to_string)
+              );
+
+              run_process(next_state);
+            },
+          ),
+        )
+        |> ignore;
+
+      let terminate = () =>
+        Registry.unregister(worker.processes, pid) |> ignore;
+
       switch (task(env, args)) {
       | exception ex =>
         Logs.debug(m =>
@@ -104,50 +122,16 @@ module Child = {
             ex |> Printexc.to_string,
           )
         )
-      | `Terminate => Registry.unregister(worker.processes, pid) |> ignore
+      | `Terminate => terminate()
+      | `Become(next_state) => queue_reduction(next_state)
       | `Defer(next_state_promise) =>
-        Lwt.on_success(next_state_promise, next_state =>
-          run_process(next_state)
+        Lwt.on_success(next_state_promise, queue_reduction);
+        Lwt.on_failure(next_state_promise, _ => terminate());
+        Logs.debug(m =>
+          m("Scheduled defer callbacks in %s", pid |> Pid.to_string)
         );
-        let rec reduction = () =>
-          Task_queue.queue(
-            worker.tasks,
-            `Reduction(
-              () => {
-                Logs.info(m =>
-                  m("%s executing defer reduction", pid |> Pid.to_string)
-                );
-
-                Lwt_engine.iter(true);
-
-                let count =
-                  Lwt_engine.timer_count()
-                  + Lwt_engine.readable_count()
-                  + Lwt_engine.writable_count();
-
-                if (count > 0) {
-                  reduction();
-                };
-              },
-            ),
-          )
-          |> ignore;
-
-        reduction();
-      | `Become(next_state) =>
-        Task_queue.queue(
-          worker.tasks,
-          `Reduction(
-            () => {
-              Logs.debug(m =>
-                m("%s executing reduction", pid |> Pid.to_string)
-              );
-              run_process(next_state);
-            },
-          ),
-        )
-        |> ignore
       };
+    };
     run_process(state);
   };
 
@@ -242,6 +226,7 @@ module Child = {
       | _ => ()
       };
 
+      Lwt_engine.iter(false);
       do_loop();
     };
     switch (do_loop()) {
