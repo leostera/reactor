@@ -5,4 +5,5 @@
     reactor.model
     reactor.bytecode
     platform
-    logs unix))
+    logs unix
+    lwt lwt.unix))

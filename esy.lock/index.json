@@ -1,5 +1,5 @@
 {
-  "checksum": "b92bbd1fb0d2af1b90bfd03e5ed44d84",
+  "checksum": "485f65f51f677627da5ba48df39aa554",
   "root": "reactor@link-dev:./package.json",
   "node": {
     "refmterr@3.1.10@d41d8cd9": {
@@ -31,8 +31,9 @@
       "overrides": [],
       "dependencies": [
         "refmterr@3.1.10@d41d8cd9", "ocaml@4.7.1004@d41d8cd9",
-        "@opam/odoc@opam:1.3.0@a3e1a29d", "@opam/logs@opam:0.6.2@8f7a792d",
-        "@opam/fmt@opam:0.8.5@01e38a4e", "@esy-ocaml/reason@3.4.0@d41d8cd9"
+        "@opam/odoc@opam:1.3.0@a3e1a29d", "@opam/lwt@opam:4.1.0@111fc2bf",
+        "@opam/logs@opam:0.6.2@8f7a792d", "@opam/fmt@opam:0.8.5@01e38a4e",
+        "@esy-ocaml/reason@3.4.0@d41d8cd9"
       ],
       "devDependencies": [
         "ocaml@4.7.1004@d41d8cd9", "@opam/merlin@opam:3.2.2@829ee6dd",
@@ -496,6 +497,36 @@
       ],
       "devDependencies": [ "ocaml@4.7.1004@d41d8cd9" ]
     },
+    "@opam/lwt@opam:4.1.0@111fc2bf": {
+      "id": "@opam/lwt@opam:4.1.0@111fc2bf",
+      "name": "@opam/lwt",
+      "version": "opam:4.1.0",
+      "source": {
+        "type": "install",
+        "source": [
+          "archive:https://opam.ocaml.org/cache/md5/e9/e919bee206f18b3d49250ecf9584fde7#md5:e919bee206f18b3d49250ecf9584fde7",
+          "archive:https://github.com/ocsigen/lwt/archive/4.1.0.tar.gz#md5:e919bee206f18b3d49250ecf9584fde7"
+        ],
+        "opam": {
+          "name": "lwt",
+          "version": "4.1.0",
+          "path": "esy.lock/opam/lwt.4.1.0"
+        }
+      },
+      "overrides": [],
+      "dependencies": [
+        "ocaml@4.7.1004@d41d8cd9", "@opam/result@opam:1.3@bee8bf2e",
+        "@opam/ocamlfind@opam:1.8.0@96572762",
+        "@opam/jbuilder@opam:transition@58bdfe0a",
+        "@opam/cppo@opam:1.6.5@bec3dbd9",
+        "@opam/base-unix@opam:base@87d0b2eb",
+        "@opam/base-threads@opam:base@36803084",
+        "@esy-ocaml/substs@0.0.1@d41d8cd9"
+      ],
+      "devDependencies": [
+        "ocaml@4.7.1004@d41d8cd9", "@opam/result@opam:1.3@bee8bf2e"
+      ]
+    },
     "@opam/logs@opam:0.6.2@8f7a792d": {
       "id": "@opam/logs@opam:0.6.2@8f7a792d",
       "name": "@opam/logs",
@@ -518,7 +549,7 @@
         "@opam/result@opam:1.3@bee8bf2e",
         "@opam/ocamlfind@opam:1.8.0@96572762",
         "@opam/ocamlbuild@opam:0.14.0@427a2331",
-        "@opam/fmt@opam:0.8.5@01e38a4e",
+        "@opam/lwt@opam:4.1.0@111fc2bf", "@opam/fmt@opam:0.8.5@01e38a4e",
         "@opam/cmdliner@opam:1.0.3@96d31520",
         "@esy-ocaml/substs@0.0.1@d41d8cd9"
       ],

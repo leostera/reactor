@@ -1,7 +1,10 @@
 {
   "name": "reactor-examples",
   "version": "0.0.0",
-  "esy": { "build": "refmterr dune build -p #{self.name}", "NOTE": "" },
+  "esy": {
+    "build": "refmterr dune build -p #{self.name}",
+    "NOTE": ""
+  },
   "dependencies": {
     "@esy-ocaml/reason": "*",
     "@opam/fmt": "*",

@@ -1,4 +1,4 @@
-type behavior('s) = [ | `Become('s) | `Terminate];
+type behavior('s) = [ | `Become('s) | `Terminate | `Defer(Lwt.t('s))];
 
 type env('s) = {
   self: unit => Pid.t,

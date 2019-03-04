@@ -1,7 +1,11 @@
 {
   "name": "reactor",
   "version": "0.0.2-alpha",
-  "keywords": [ "Actor-model", "actor", "concurrency" ],
+  "keywords": [
+    "Actor-model",
+    "actor",
+    "concurrency"
+  ],
   "author": "Leandro Ostera <leandro@ostera.io>",
   "license": "MIT",
   "esy": {
@@ -16,6 +20,7 @@
     "@opam/fmt": "*",
     "@opam/logs": "*",
     "@opam/odoc": "1.3.0",
+    "@opam/lwt": "*",
     "ocaml": "~4.7.0",
     "refmterr": "*"
   },
