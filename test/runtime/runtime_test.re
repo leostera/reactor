@@ -24,20 +24,27 @@ module Test_actor = {
       (pid, ~target, text) => pid <- (`Forward((target, text)) |> encode);
   };
 
-  let loop: Reactor.Process.task(unit) =
+  let loop: Reactor.Process.task(int) =
     (env, state) => {
       switch (env.recv()) {
       | Some(msg) =>
         switch (msg |> Message.decode) {
-        | `Forward(target, text) => Message.print(target, text)
-        | `Print(text) => Logs.app(m => m("[`Print(%s)]", text))
-        };
-        `Become(state);
+        | `Forward(target, text) =>
+          Message.print(target, text);
+          `Become(state + 1);
+        | `Print(text) =>
+          Logs.app(m => m("[`Print(%s)]", text));
+          if (state == 1) {
+            exit();
+          } else {
+            `Become(state + 1);
+          };
+        }
       | _ => `Become(state)
       };
     };
 
-  let start = spawn(loop);
+  let start = () => spawn(loop, 0);
 };
 
 let pid_1 = Test_actor.start();

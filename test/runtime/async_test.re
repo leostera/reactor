@@ -16,19 +16,25 @@ module Async_actor = {
 
   let loop: Reactor.Process.task(state) =
     (env, state) => {
-      let pid = env.self() |> Reactor.Pid.to_string;
-      let {delay, count} = state;
-      Logs.app(m => m("%s @@ delay=%.2f count=%d", pid, delay, count));
-      let promise =
-        delay |> Lwt_unix.sleep |> Lwt.map(_ => {...state, count: count + 1});
-      `Defer(promise);
+      switch (state.count) {
+      | x when x > 100 => exit()
+      | _ =>
+        let pid = env.self() |> Reactor.Pid.to_string;
+        let {delay, count} = state;
+        Logs.app(m => m("%s @@ delay=%.2f count=%d", pid, delay, count));
+        let promise =
+          delay
+          |> Lwt_unix.sleep
+          |> Lwt.map(_ => {...state, count: count + 1});
+        `Defer(promise);
+      };
     };
 
   let start = (~delay) => spawn(loop, {delay, count: 0});
 };
 
 Array.init(
-  100,
+  10,
   index => {
     let delay = 0.01 +. float_of_int(index);
     Async_actor.start(~delay);
