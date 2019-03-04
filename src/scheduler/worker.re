@@ -94,25 +94,15 @@ module Child = {
 
     Registry.register(worker.processes, pid, proc) |> ignore;
 
+    let queue_reduction = f => {
+      let reduction = `Reduction(f);
+      Task_queue.queue(worker.tasks, reduction) |> ignore;
+    };
+
+    let terminate = () =>
+      Registry.unregister(worker.processes, pid) |> ignore;
+
     let rec run_process = args => {
-      let queue_reduction = next_state =>
-        Task_queue.queue(
-          worker.tasks,
-          `Reduction(
-            () => {
-              Logs.debug(m =>
-                m("%s executing reduction", pid |> Pid.to_string)
-              );
-
-              run_process(next_state);
-            },
-          ),
-        )
-        |> ignore;
-
-      let terminate = () =>
-        Registry.unregister(worker.processes, pid) |> ignore;
-
       switch (task(env, args)) {
       | exception ex =>
         Logs.debug(m =>
@@ -123,13 +113,14 @@ module Child = {
           )
         )
       | `Terminate => terminate()
-      | `Become(next_state) => queue_reduction(next_state)
+      | `Become(next_state) => queue_reduction(() => run_process(next_state))
       | `Defer(next_state_promise) =>
-        Lwt.on_success(next_state_promise, queue_reduction);
-        Lwt.on_failure(next_state_promise, _ => terminate());
-        Logs.debug(m =>
-          m("Scheduled defer callbacks in %s", pid |> Pid.to_string)
-        );
+        queue_reduction(() => {
+          Lwt.on_success(next_state_promise, next_state =>
+            queue_reduction(() => run_process(next_state))
+          );
+          Lwt.on_failure(next_state_promise, _ => terminate());
+        })
       };
     };
     run_process(state);
