@@ -28,7 +28,7 @@ let _ =
         switch (i' == proc_count) {
         | true =>
           Logs.app(m => m("%d actors finished.", proc_count));
-          exit(0);
+          exit();
         | _ => `Become((proc_count, i'))
         }
       | (_, _) => `Become((proc_count, i))
