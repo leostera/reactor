@@ -41,6 +41,12 @@ let prepare = () => {
   );
 };
 
+let halt_system: Seq.t(Worker.t) => unit =
+  wrkrs => {
+    wrkrs |> Seq.map(Worker.id) |> Seq.iter(Platform.Process.kill);
+    exit(0);
+  };
+
 let setup = policy => {
   __global_coordinator := {...__global_coordinator^, policy};
   prepare();
@@ -58,6 +64,7 @@ let run = () => {
     | `Send(wrkrs) =>
       switch (Task_queue.next(tasks)) {
       | None => ()
+      | Some(Bytecode.Halt) => halt_system(wrkrs)
       | Some(task) => wrkrs |> Seq.iter(Worker.send_task(task))
       }
     | `Wait => ()
@@ -138,5 +145,19 @@ module Tasks = {
     );
 
     pid;
+  };
+
+  let halt = () => {
+    Logs.debug(m => m("Shutting down..."));
+
+    switch (Worker.Child.current()) {
+    | Some(worker) =>
+      let tasks' = Task_queue.clear(worker.tasks);
+      `From_worker(Bytecode.Halt) |> Task_queue.queue(tasks') |> ignore;
+    | None =>
+      let coordinator = current();
+      let tasks' = Task_queue.clear(coordinator.tasks);
+      Bytecode.Halt |> Task_queue.queue(tasks') |> ignore;
+    };
   };
 };

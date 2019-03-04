@@ -138,6 +138,7 @@ module Child = {
 
   let should_handle_task_locally = task => {
     switch (task) {
+    | Bytecode.Halt => false
     | Bytecode.Send_message(pid, _)
     | Bytecode.Spawn(pid, _, _) =>
       let {Model.Pid.worker_id, _} = pid |> Model.Pid.view;
@@ -151,7 +152,7 @@ module Child = {
       handle_send_message(worker, pid, msg)
     | (true, Bytecode.Spawn(pid, proc, state)) =>
       handle_spawn(worker, pid, proc, state)
-    | (false, _) => ()
+    | (_, _) => ()
     };
   };
 
@@ -161,7 +162,7 @@ module Child = {
       handle_send_message(worker, pid, msg)
     | (true, Bytecode.Spawn(pid, proc, state)) =>
       handle_spawn(worker, pid, proc, state)
-    | (false, task) =>
+    | (_, task) =>
       /** should send message back to coordinator */
       let cmd = Packet.encode(task);
       Platform.Process.write(to_parent, ~buf=cmd);

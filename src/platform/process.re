@@ -57,3 +57,5 @@ let select = (~read, ~write, ~except, ~timeout) => {
   | (read, write, except) => (`Read(read), `Write(write), `Except(except))
   };
 };
+
+let kill = pid => Unix.kill(~pid, ~signal=9);

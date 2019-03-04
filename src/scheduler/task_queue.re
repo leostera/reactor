@@ -17,3 +17,8 @@ let next = q => {
 let to_seq = Queue.to_seq;
 
 let length = Queue.length;
+
+let clear = q => {
+  Queue.clear(q);
+  q;
+};
