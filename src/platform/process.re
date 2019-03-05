@@ -12,7 +12,7 @@ let write = (fd, ~buf) => {
 };
 
 let read = (fd, ~len) => {
-  let buf = Bytes.create(256);
+  let buf = Bytes.create(4096);
   let rec read_pipe = (pos, len) => {
     switch (Unix.read(fd, ~buf, ~pos, ~len)) {
     | exception _ => buf

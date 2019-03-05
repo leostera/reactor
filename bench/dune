@@ -8,3 +8,9 @@
   (name startup)
   (modules startup)
   (libraries reactor ))
+
+(executable
+  (name message_passing)
+  (modules message_passing)
+  (libraries reactor
+    logs logs.fmt fmt fmt.tty))
