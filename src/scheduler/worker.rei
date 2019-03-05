@@ -27,6 +27,7 @@ module Child: {
     unix_pid: int,
     pipe_to_coordinator: Unix.file_descr,
     pipe_from_coordinator: Unix.file_descr,
+    should_halt: ref(bool),
     last_pid: ref(Model.Pid.t),
     processes: Model.Registry.t,
     process_count: int,

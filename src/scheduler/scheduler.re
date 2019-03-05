@@ -3,7 +3,7 @@ module Coordinator = Coordinator;
 
 let setup = Coordinator.setup;
 
-let run = Coordinator.run;
+let run = Coordinator.Tasks.run;
 
 let send = (pid, msg) => Coordinator.Tasks.send_message(~pid, ~msg);
 

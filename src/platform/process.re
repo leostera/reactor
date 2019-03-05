@@ -58,4 +58,4 @@ let select = (~read, ~write, ~except, ~timeout) => {
   };
 };
 
-let kill = pid => Unix.kill(~pid, ~signal=9);
+let kill = pid => Unix.kill(~pid, ~signal=Sys.sigkill);

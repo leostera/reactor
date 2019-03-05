@@ -61,6 +61,7 @@ module Child = {
     unix_pid: int,
     pipe_to_coordinator: Unix.file_descr,
     pipe_from_coordinator: Unix.file_descr,
+    should_halt: ref(bool),
     last_pid: ref(Model.Pid.t),
     processes: Model.Registry.t,
     process_count: int,
@@ -78,6 +79,7 @@ module Child = {
         unix_pid: pid,
         pipe_to_coordinator: to_parent,
         pipe_from_coordinator: from_parent,
+        should_halt: ref(false),
         last_pid: ref(Model.Pid.make(0, pid, 0)),
         processes: Model.Registry.create(),
         process_count: 0,
@@ -136,6 +138,10 @@ module Child = {
     };
   };
 
+  let handle_halt = worker => {
+    worker.should_halt := true;
+  };
+
   let should_handle_task_locally = task => {
     switch (task) {
     | Bytecode.Halt => false
@@ -152,6 +158,7 @@ module Child = {
       handle_send_message(worker, pid, msg)
     | (true, Bytecode.Spawn(pid, proc, state)) =>
       handle_spawn(worker, pid, proc, state)
+    | (false, Bytecode.Halt) => handle_halt(worker)
     | (_, _) => ()
     };
   };
@@ -162,6 +169,11 @@ module Child = {
       handle_send_message(worker, pid, msg)
     | (true, Bytecode.Spawn(pid, proc, state)) =>
       handle_spawn(worker, pid, proc, state)
+    | (false, Bytecode.Halt as task) =>
+      handle_halt(worker);
+      /** should send message back to coordinator */
+      let cmd = Packet.encode(task);
+      Platform.Process.write(to_parent, ~buf=cmd);
     | (_, task) =>
       /** should send message back to coordinator */
       let cmd = Packet.encode(task);
@@ -178,53 +190,60 @@ module Child = {
   };
 
   let run = (worker, `Write(to_parent), `Read(from_parent)) => {
+    Logs.info(m =>
+      m("[%d] Beginning worker loop...", Platform.Process.pid())
+    );
     let pid = Platform.Process.pid();
     let rec do_loop = () => {
-      Logs.debug(m =>
-        m(
-          "[%i] Tasks queue has %d tasks",
-          worker.unix_pid,
-          worker.tasks |> Task_queue.length,
-        )
-      );
-
-      let (`Read(read_fds), `Write(write_fds), _) =
-        Platform.Process.select(
-          ~read=[from_parent],
-          ~write=[to_parent],
-          ~except=[],
-          ~timeout=-1.0,
+      switch (worker.should_halt^) {
+      | true => ()
+      | _ =>
+        Logs.debug(m =>
+          m(
+            "[%i] Tasks queue has %d tasks",
+            worker.unix_pid,
+            worker.tasks |> Task_queue.length,
+          )
         );
 
-      switch (read_fds) {
-      | fds when List.length(fds) > 0 =>
-        Logs.debug(m => m("[%i] Receiving tasks...", worker.unix_pid));
-        let cmd: Bytecode.t = Packet.read_from_pipe(`Read(from_parent));
-        Task_queue.queue(worker.tasks, `From_coordinator(cmd)) |> ignore;
-      | _ => ()
-      };
+        let (`Read(read_fds), `Write(write_fds), _) =
+          Platform.Process.select(
+            ~read=[from_parent],
+            ~write=[to_parent],
+            ~except=[],
+            ~timeout=-1.0,
+          );
 
-      switch (worker.tasks |> Task_queue.length, write_fds) {
-      | (x, fds) when List.length(fds) > 0 && x > 0 =>
-        switch (Task_queue.next(worker.tasks)) {
-        | None =>
-          Logs.debug(m =>
-            m("[%i] No tasks to send. Standing by.", worker.unix_pid)
-          )
-        | Some(task) =>
-          Logs.debug(m => m("[%i] Handling tasks...", worker.unix_pid));
-          handle_task(worker, `Write(to_parent), task);
-        }
-      | _ => ()
-      };
+        switch (read_fds) {
+        | fds when List.length(fds) > 0 =>
+          Logs.debug(m => m("[%i] Receiving tasks...", worker.unix_pid));
+          let cmd: Bytecode.t = Packet.read_from_pipe(`Read(from_parent));
+          Task_queue.queue(worker.tasks, `From_coordinator(cmd)) |> ignore;
+        | _ => ()
+        };
 
-      Lwt_engine.iter(false);
-      do_loop();
+        switch (worker.tasks |> Task_queue.length, write_fds) {
+        | (x, fds) when List.length(fds) > 0 && x > 0 =>
+          switch (Task_queue.next(worker.tasks)) {
+          | None =>
+            Logs.debug(m =>
+              m("[%i] No tasks to send. Standing by.", worker.unix_pid)
+            )
+          | Some(task) =>
+            Logs.debug(m => m("[%i] Handling tasks...", worker.unix_pid));
+            handle_task(worker, `Write(to_parent), task);
+          }
+        | _ => ()
+        };
+
+        Lwt_engine.iter(false);
+        do_loop();
+      };
     };
     switch (do_loop()) {
     | exception e =>
       let err = Printexc.to_string(e);
-      Logs.err(m => m("Uncaught exception in worker (pid %i): %s", pid, err));
+      Logs.err(m => m("[%i] Uncaught exception in worker: %s", pid, err));
       exit(1);
     | x => x
     };

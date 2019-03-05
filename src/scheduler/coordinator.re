@@ -1,4 +1,5 @@
 type t = {
+  should_halt: bool,
   policy: Policy.t,
   workers: Worker_registry.t,
   tasks: Task_queue.t(Bytecode.t),
@@ -6,6 +7,7 @@ type t = {
 
 let __global_coordinator: ref(t) =
   ref({
+    should_halt: false,
     policy: Policy.default(),
     workers: Worker_registry.create(),
     tasks: Task_queue.create(),
@@ -19,32 +21,45 @@ let prepare = () => {
   Policy.worker_count(policy)
   |> (size => Array.make(size, None))
   |> Array.iteri((_, _) =>
-       switch (Worker.start()) {
-       | Some(worker) =>
-         let worker_id = worker |> Worker.id |> Int32.of_int;
-         Worker_registry.register(workers, worker_id, worker) |> ignore;
-       | None => ()
+       switch (Worker.Child.current()) {
+       | Some(_) => ()
+       | None =>
+         switch (Worker.start()) {
+         | Some(worker) =>
+           let worker_id = worker |> Worker.id |> Int32.of_int;
+           Worker_registry.register(workers, worker_id, worker) |> ignore;
+         | None => ()
+         }
        }
      );
 
-  Logs.info(m =>
-    m(
-      "Spawned %d out of %d workers: %s",
-      policy |> Policy.worker_count,
-      workers |> Worker_registry.size,
-      workers
-      |> Worker_registry.ids
-      |> Seq.map(Int32.to_string)
-      |> List.of_seq
-      |> String.concat(", "),
+  switch (Worker.Child.current()) {
+  | Some(_) => ()
+  | None =>
+    Logs.info(m =>
+      m(
+        "[%d] Spawned %d out of %d workers: %s",
+        Platform.Process.pid(),
+        policy |> Policy.worker_count,
+        workers |> Worker_registry.size,
+        workers
+        |> Worker_registry.ids
+        |> Seq.map(Int32.to_string)
+        |> List.of_seq
+        |> String.concat(", "),
+      )
     )
-  );
+  };
 };
 
-let halt_system: Seq.t(Worker.t) => unit =
+let kill_workers: Seq.t(Worker.t) => unit =
   wrkrs => {
     wrkrs |> Seq.map(Worker.id) |> Seq.iter(Platform.Process.kill);
-    exit(0);
+  };
+
+let halt_system: unit => unit =
+  () => {
+    __global_coordinator := {...__global_coordinator^, should_halt: true};
   };
 
 let setup = policy => {
@@ -52,24 +67,34 @@ let setup = policy => {
   prepare();
 };
 
-let run = () => {
+let enter_loop = () => {
   let {workers, tasks, _} = current();
-  Logs.debug(m => m("Beginning scheduling loop..."));
+  Logs.debug(m =>
+    m("[%d] Beginning scheduling loop...", Platform.Process.pid())
+  );
 
   let rec do_loop = () => {
-    let next = Worker_registry.workers(workers) |> Worker.wait_next_available;
-    switch (next) {
-    | `Receive(cmds) =>
-      cmds |> Seq.fold_left(Task_queue.queue, tasks) |> ignore
-    | `Send(wrkrs) =>
-      switch (Task_queue.next(tasks)) {
-      | None => ()
-      | Some(Bytecode.Halt) => halt_system(wrkrs)
-      | Some(task) => wrkrs |> Seq.iter(Worker.send_task(task))
-      }
-    | `Wait => ()
+    let {should_halt, _} = current();
+    switch (should_halt) {
+    | true => ()
+    | _ =>
+      let next =
+        Worker_registry.workers(workers) |> Worker.wait_next_available;
+      switch (next) {
+      | `Receive(cmds) =>
+        cmds |> Seq.fold_left(Task_queue.queue, tasks) |> ignore
+      | `Send(wrkrs) =>
+        switch (Task_queue.next(tasks)) {
+        | None => ()
+        | Some(Bytecode.Halt as task) =>
+          halt_system();
+          wrkrs |> Seq.iter(Worker.send_task(task));
+        | Some(task) => wrkrs |> Seq.iter(Worker.send_task(task))
+        }
+      | `Wait => ()
+      };
+      do_loop();
     };
-    do_loop();
   };
 
   do_loop();
@@ -85,7 +110,11 @@ module Tasks = {
     | None =>
       let coordinator = __global_coordinator^;
       Logs.debug(m =>
-        m("Sending message to pid %s", pid |> Model.Pid.to_string)
+        m(
+          "[%d] Sending message to pid %s",
+          Platform.Process.pid(),
+          pid |> Model.Pid.to_string,
+        )
       );
       Bytecode.Send_message(pid, msg)
       |> Task_queue.queue(coordinator.tasks)
@@ -141,14 +170,18 @@ module Tasks = {
       };
 
     Logs.debug(m =>
-      m("Spawning process with pid %s", pid |> Model.Pid.to_string)
+      m(
+        "[%d] Spawning process with pid %s",
+        Platform.Process.pid(),
+        pid |> Model.Pid.to_string,
+      )
     );
 
     pid;
   };
 
   let halt = () => {
-    Logs.debug(m => m("Shutting down..."));
+    Logs.debug(m => m("[%d] Shutting down...", Platform.Process.pid()));
 
     switch (Worker.Child.current()) {
     | Some(worker) =>
@@ -158,6 +191,20 @@ module Tasks = {
       let coordinator = current();
       let tasks' = Task_queue.clear(coordinator.tasks);
       Bytecode.Halt |> Task_queue.queue(tasks') |> ignore;
+    };
+  };
+
+  let run = () => {
+    switch (Worker.Child.current()) {
+    | Some(worker) =>
+      Logs.info(m => m("[%d] Worker shutting down...", worker.unix_pid));
+      exit(0);
+    | None =>
+      enter_loop();
+      kill_workers(current().workers |> Worker_registry.workers);
+      Logs.info(m =>
+        m("[%d] Scheduler shutting down...", Platform.Process.pid())
+      );
     };
   };
 };
