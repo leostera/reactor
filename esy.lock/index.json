@@ -1,5 +1,5 @@
 {
-  "checksum": "485f65f51f677627da5ba48df39aa554",
+  "checksum": "ec27e8a3ff108581e6a4c86c2b253fca",
   "root": "reactor@link-dev:./package.json",
   "node": {
     "refmterr@3.1.10@d41d8cd9": {
@@ -33,6 +33,7 @@
         "refmterr@3.1.10@d41d8cd9", "ocaml@4.7.1004@d41d8cd9",
         "@opam/odoc@opam:1.3.0@a3e1a29d", "@opam/lwt@opam:4.1.0@111fc2bf",
         "@opam/logs@opam:0.6.2@8f7a792d", "@opam/fmt@opam:0.8.5@01e38a4e",
+        "@opam/benchmark@opam:1.6@51768878",
         "@esy-ocaml/reason@3.4.0@d41d8cd9"
       ],
       "devDependencies": [
@@ -838,6 +839,32 @@
       ],
       "devDependencies": [
         "ocaml@4.7.1004@d41d8cd9", "@opam/easy-format@opam:1.3.1@9abfd4ed"
+      ]
+    },
+    "@opam/benchmark@opam:1.6@51768878": {
+      "id": "@opam/benchmark@opam:1.6@51768878",
+      "name": "@opam/benchmark",
+      "version": "opam:1.6",
+      "source": {
+        "type": "install",
+        "source": [
+          "archive:https://opam.ocaml.org/cache/md5/42/425d16d91e11bc81e3d347884f8fe991#md5:425d16d91e11bc81e3d347884f8fe991",
+          "archive:https://github.com/Chris00/ocaml-benchmark/releases/download/1.6/benchmark-1.6.tbz#md5:425d16d91e11bc81e3d347884f8fe991"
+        ],
+        "opam": {
+          "name": "benchmark",
+          "version": "1.6",
+          "path": "esy.lock/opam/benchmark.1.6"
+        }
+      },
+      "overrides": [],
+      "dependencies": [
+        "ocaml@4.7.1004@d41d8cd9", "@opam/dune@opam:1.7.3@72aad784",
+        "@opam/base-unix@opam:base@87d0b2eb",
+        "@esy-ocaml/substs@0.0.1@d41d8cd9"
+      ],
+      "devDependencies": [
+        "ocaml@4.7.1004@d41d8cd9", "@opam/base-unix@opam:base@87d0b2eb"
       ]
     },
     "@opam/base-unix@opam:base@87d0b2eb": {

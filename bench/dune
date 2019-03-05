@@ -1,22 +1,22 @@
 (executable
   (name spawn)
   (modules spawn)
-  (libraries reactor 
+  (libraries benchmark reactor 
     logs logs.fmt fmt fmt.tty))
 
 (executable
   (name startup)
   (modules startup)
-  (libraries reactor ))
+  (libraries benchmark reactor ))
 
 (executable
   (name message_passing_in_worker)
   (modules message_passing_in_worker)
-  (libraries reactor
+  (libraries benchmark reactor
     logs logs.fmt fmt fmt.tty))
 
 (executable
   (name message_passing_across_workers)
   (modules message_passing_across_workers)
-  (libraries reactor
+  (libraries benchmark reactor
     logs logs.fmt fmt fmt.tty))

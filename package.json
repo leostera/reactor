@@ -1,26 +1,20 @@
 {
   "name": "reactor",
   "version": "0.0.2-alpha",
-  "keywords": [
-    "Actor-model",
-    "actor",
-    "concurrency"
-  ],
+  "keywords": [ "Actor-model", "actor", "concurrency" ],
   "author": "Leandro Ostera <leandro@ostera.io>",
   "license": "MIT",
-  "esy": {
-    "build": "refmterr dune build -p #{self.name}",
-    "NOTE": ""
-  },
+  "esy": { "build": "refmterr dune build -p #{self.name}", "NOTE": "" },
   "scripts": {
     "open-docs": "open #{self.target_dir}/default/_doc/_html/index.html"
   },
   "dependencies": {
+    "@opam/benchmark": "1.6",
     "@esy-ocaml/reason": "*",
     "@opam/fmt": "*",
     "@opam/logs": "*",
-    "@opam/odoc": "1.3.0",
     "@opam/lwt": "*",
+    "@opam/odoc": "1.3.0",
     "ocaml": "~4.7.0",
     "refmterr": "*"
   },
