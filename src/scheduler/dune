@@ -1,9 +1,4 @@
 (library
-  (name scheduler)
-  (public_name reactor.scheduler)
-  (libraries
-    reactor.model
-    reactor.bytecode
-    platform
-    logs unix
-    lwt lwt.unix))
+ (name scheduler)
+ (public_name reactor.scheduler)
+ (libraries reactor.model reactor.bytecode platform logs unix lwt lwt.unix))
