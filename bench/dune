@@ -10,7 +10,13 @@
   (libraries reactor ))
 
 (executable
-  (name message_passing)
-  (modules message_passing)
+  (name message_passing_in_worker)
+  (modules message_passing_in_worker)
+  (libraries reactor
+    logs logs.fmt fmt fmt.tty))
+
+(executable
+  (name message_passing_across_workers)
+  (modules message_passing_across_workers)
   (libraries reactor
     logs logs.fmt fmt fmt.tty))
