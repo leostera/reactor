@@ -1,4 +1,10 @@
 (executable
   (name spawn)
+  (modules spawn)
   (libraries reactor 
     logs logs.fmt fmt fmt.tty))
+
+(executable
+  (name startup)
+  (modules startup)
+  (libraries reactor ))
