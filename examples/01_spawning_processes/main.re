@@ -27,10 +27,14 @@ open Reactor.System;
   Great! We are ready to start now, so lets do that by defining what is
   spawning and becoming.
 
-  *Spawning* is the act of creating a new Process.
+  *Spawning* is the act of creating a new Process. To spawn a process, we need
+  a function that will define the behavior of the process, and an initial
+  state.
 
   *Becoming* is what Processes do to change their state, and it behaves like a
-  tail-recursive call.
+  tail-recursive call. This means that state is not mutable, but rather that a
+  process must compute it's next state, and it will essentially call itself
+  with it.
 
   The example below will spawn a process that simply keeps state and never
   terminates.
