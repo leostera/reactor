@@ -15,7 +15,7 @@
     "refmterr": "*"
   },
   "resolutions": {
-    "reactor": "github:ostera/reactor:reactor.opam#e01501faa3773dd9d03c9166f8f03df7422ebf5f"
+    "reactor": "github:ostera/reactor:reactor.opam#8b1bbbb"
   },
   "devDependencies": {
     "@opam/dune": "*",

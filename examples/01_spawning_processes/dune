@@ -1,0 +1,3 @@
+(executable
+  (name main)
+ (libraries reactor logs logs.fmt fmt fmt.tty))
