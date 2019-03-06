@@ -6,6 +6,7 @@ that you can read and work through to learn about reactor and how to use it.
 List of labs:
 
 1. [Spawning Processes](./01_spawning_processes/main.re)
+2. [Basic Message Passing](./02_basic_message_passing/main.re)
 
 ## Running Examples
 
