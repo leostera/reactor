@@ -1,3 +1,0 @@
-(tests
- (names async_test runtime_test)
- (libraries reactor logs logs.fmt fmt fmt.tty))

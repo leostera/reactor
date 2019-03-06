@@ -1,0 +1,3 @@
+(tests
+ (names runtime_test)
+ (libraries reactor alcotest))
