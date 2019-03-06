@@ -9,12 +9,15 @@
     "open-docs": "open #{self.target_dir}/default/_doc/_html/index.html"
   },
   "dependencies": {
-    "@opam/benchmark": "1.6",
     "@esy-ocaml/reason": "*",
+    "@opam/alcotest": "0.8.5",
+    "@opam/benchmark": "1.6",
     "@opam/fmt": "*",
     "@opam/logs": "*",
     "@opam/lwt": "*",
     "@opam/odoc": "1.3.0",
+    "@opam/qcheck": "0.9",
+    "@opam/qcheck-alcotest": "0.9",
     "ocaml": "~4.7.0",
     "refmterr": "*"
   },
