@@ -10,6 +10,7 @@ bug-reports: "https//github.com/ostera/reactor/issues"
 depends: [
   "fmt"
   "logs"
+  "lwt"
 
   "dune" {build}
   "reason" {build}
