@@ -5,7 +5,7 @@ that you can read and work through to learn about reactor and how to use it.
 
 List of labs:
 
-1. [Spawning Processes](./01_spawning_processes)
+1. [Spawning Processes](./01_spawning_processes/main.re)
 
 ## Running Examples
 
