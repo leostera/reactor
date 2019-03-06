@@ -45,6 +45,10 @@ let pid = spawn((_ctx, state) => `Become(state), 0);
   Cool. This pid is needed to send messages to this process, and to send
   messages we can use the `send` function, or the `<-` operator.
 
+  When we send a message, we are actually putting a copy of the message at the
+  top of the mailbox for a particular process. This means that the process will
+  have to consume all the earlier messages before it reads ours.
+
   Let's send two messages, "hello", and "world":
  */
 send(pid, "hello");
