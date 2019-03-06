@@ -1,4 +1,4 @@
-# `reactor` Examples
+# 🚀 reactor examples 👨‍🏫
 
 This section includes a series of small examples built in the form of _labs_
 that you can read and work through to learn about reactor and how to use it.
