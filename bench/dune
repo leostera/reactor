@@ -17,3 +17,8 @@
  (name message_passing_across_workers)
  (modules message_passing_across_workers)
  (libraries benchmark reactor logs logs.fmt fmt fmt.tty))
+
+(executable
+ (name fibonacci)
+ (modules fibonacci)
+ (libraries benchmark reactor logs logs.fmt fmt fmt.tty))
