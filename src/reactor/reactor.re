@@ -8,5 +8,6 @@ module System = {
     `Terminate;
   };
   let spawn = Scheduler.spawn;
+  let send = Scheduler.send;
   let (<-) = (pid, msg) => Scheduler.send(pid, msg);
 };
