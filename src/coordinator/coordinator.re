@@ -1,3 +1,5 @@
+module Bytecode = Reactor_bytecode.Bytecode;
+
 let create_pool =
     (~child_count, ~is_child, ~on_child, ~on_parent, ~after_child_spawn) => {
   Array.make(child_count, 0)

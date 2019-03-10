@@ -1,4 +1,4 @@
 (library
- (name bytecode)
+ (name reactor_bytecode)
  (public_name reactor.bytecode)
  (libraries reactor.process))

@@ -1,3 +1,5 @@
+module Bytecode = Reactor_bytecode.Bytecode;
+
 let wait_next_available:
   (
     list([ | `Read(Unix.file_descr)]),

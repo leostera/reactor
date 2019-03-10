@@ -1,5 +1,7 @@
 module Task_queue = Reactor_task_queue.Task_queue;
 module Coordinator = Reactor_coordinator.Coordinator;
+module Bytecode = Reactor_bytecode.Bytecode;
+module Process = Reactor_process.Process;
 
 type task = [
   | `From_coordinator(Bytecode.t)

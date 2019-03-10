@@ -1,3 +1,5 @@
+module Process = Reactor_process.Process;
+
 type t =
   | Halt
   | Send_message(Process.Pid.t, Process.Message.t): t

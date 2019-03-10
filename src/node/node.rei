@@ -13,12 +13,12 @@ let run: unit => unit;
 
 let setup: Policy.t => unit;
 
-let enqueue: (t, Bytecode.t) => unit;
+let enqueue: (t, Reactor_bytecode.Bytecode.t) => unit;
 
 let halt: t => unit;
 
 let least_busy_scheduler: t => option(Scheduler_view.t);
 
-let next_pid: (t, Scheduler_view.t) => Process.Pid.t;
+let next_pid: (t, Scheduler_view.t) => Reactor_process.Process.Pid.t;
 
 module Policy: (module type of Policy);

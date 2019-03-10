@@ -1,4 +1,4 @@
 (library
  (name reactor)
  (public_name reactor)
- (libraries reactor.tasks reactor.node))
+ (libraries reactor.tasks reactor.node reactor.process))

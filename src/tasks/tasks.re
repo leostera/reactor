@@ -1,6 +1,8 @@
 module Node = Reactor_node.Node;
 module Task_queue = Reactor_task_queue.Task_queue;
 module Scheduler = Reactor_scheduler.Scheduler;
+module Bytecode = Reactor_bytecode.Bytecode;
+module Process = Reactor_process.Process;
 
 let send = (pid, msg) => {
   let msg = Bytecode.Send_message(pid, msg);
