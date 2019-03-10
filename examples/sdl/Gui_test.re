@@ -6,7 +6,7 @@ Logs.set_level(Some(Logs.Error));
 Logs.set_reporter(Logs_fmt.reporter());
 
 /** System setup */
-Reactor.Scheduler.(Policy.default() |> setup);
+Reactor.Node.(Policy.default() |> setup);
 
 module Screen_cleaner = {
   open Tsdl;
@@ -51,4 +51,4 @@ let sdl_ctx = Sdl_ctx.start();
 Sdl_ctx.M.init(sdl_ctx);
 let _ = Screen_cleaner.start(sdl_ctx, (0, 0, 0));
 
-Reactor.Scheduler.run();
+Reactor.Node.run();
