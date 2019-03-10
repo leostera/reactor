@@ -1,0 +1,3 @@
+(library
+  (name reactor_registry)
+  (public_name reactor.registry))
