@@ -24,7 +24,7 @@ let view_is_consistent = {
     let p' =
       Pid.make(
         v.node_id |> Int32.to_int,
-        v.worker_id |> Int32.to_int,
+        v.scheduler_id |> Int32.to_int,
         v.process_id |> Int32.to_int,
       );
     let v' = Pid.view(p');
