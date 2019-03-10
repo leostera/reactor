@@ -1,5 +1,4 @@
 (library
  (name reactor)
  (public_name reactor)
- (libraries reactor.model reactor.scheduler reactor.platform reactor.bytecode
-   unix logs logs.fmt fmt fmt.tty))
+ (libraries reactor.tasks reactor.node))
