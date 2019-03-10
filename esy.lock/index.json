@@ -34,7 +34,8 @@
         "@opam/qcheck-alcotest@opam:0.9@88b25ef7",
         "@opam/qcheck@opam:0.9@03f6c58c", "@opam/odoc@opam:1.4.0@816970ee",
         "@opam/lwt@opam:4.1.0@111fc2bf", "@opam/logs@opam:0.6.2@8f7a792d",
-        "@opam/fmt@opam:0.8.5@01e38a4e", "@opam/benchmark@opam:1.6@51768878",
+        "@opam/fmt@opam:0.8.5@01e38a4e", "@opam/dune@opam:1.8.2@511996a8",
+        "@opam/benchmark@opam:1.6@51768878",
         "@opam/alcotest@opam:0.8.5@0b35b339",
         "@esy-ocaml/reason@3.4.0@d41d8cd9"
       ],
