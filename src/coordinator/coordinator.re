@@ -17,6 +17,7 @@ let create_pool =
      });
 };
 
+let read_task = Packet.read_from_pipe;
 let send_task = (task, fd) =>
   Platform.Process.write(fd, ~buf=Packet.encode(task));
 
@@ -49,5 +50,3 @@ let wait_next_available = (read_fds, write_fds) => {
 
   (receive, sends);
 };
-
-let read_task = Packet.read_from_pipe;
