@@ -1,0 +1,4 @@
+(library
+ (name reactor_node)
+ (public_name reactor.node)
+ (libraries reactor.platform reactor.process reactor.scheduler reactor.task_queue))

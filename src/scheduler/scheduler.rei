@@ -1,15 +1,28 @@
-module Policy: {
-  type t;
-  let default: unit => t;
-  let custom: (~worker_count: int) => t;
-};
+type t;
 
-let setup: Policy.t => unit;
+type task = [
+  | `From_coordinator(Bytecode.t)
+  | `From_scheduler(Bytecode.t)
+  | `Reduction(unit => unit)
+];
 
-let run: unit => unit;
+let id: t => int;
 
-let send: (Model.Pid.t, Model.Message.t) => unit;
+let last_pid: t => Process.Pid.t;
 
-let spawn: (Model.Process.task('a), 'a) => Model.Pid.t;
+let next_pid: t => Process.Pid.t;
 
-let halt: unit => unit;
+let current: unit => option(t);
+
+let is_scheduler: unit => bool;
+
+let enqueue: (t, task) => unit;
+
+let halt: t => unit;
+
+let setup:
+  (~pid: int, [< | `Write(Unix.file_descr)], [< | `Read(Unix.file_descr)]) =>
+  t;
+
+let run:
+  ([< | `Write(Unix.file_descr)], [< | `Read(Unix.file_descr)], t) => unit;

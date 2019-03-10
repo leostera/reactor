@@ -1,0 +1,4 @@
+(library
+  (name reactor_coordinator)
+  (public_name reactor.coordinator)
+  (libraries reactor.platform reactor.bytecode))
