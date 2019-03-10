@@ -1,0 +1,4 @@
+(library
+ (name process)
+ (public_name reactor.process)
+ (libraries reactor.registry fmt logs lwt))
