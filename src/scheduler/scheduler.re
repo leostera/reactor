@@ -175,8 +175,7 @@ let run = (`Write(to_parent), `Read(from_parent), scheduler) => {
       switch (read_fds) {
       | fds when List.length(fds) > 0 =>
         Logs.debug(m => m("[%i] Receiving tasks...", scheduler.unix_pid));
-        let cmd: Bytecode.t =
-          Coordinator.Packet.read_from_pipe(`Read(from_parent));
+        let cmd: Bytecode.t = Coordinator.read_task(`Read(from_parent));
         Task_queue.queue(scheduler.tasks, `From_coordinator(cmd));
       | _ => ()
       };

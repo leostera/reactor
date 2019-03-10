@@ -17,9 +17,9 @@ let create_pool =
      });
 };
 
-let send_task: (Bytecode.t, Unix.file_descr) => unit =
-  (task, fd) => Platform.Process.write(fd, ~buf=Packet.encode(task));
+let send_task = (task, fd) =>
+  Platform.Process.write(fd, ~buf=Packet.encode(task));
 
 let wait_next_available = Worker.wait_next_available;
 
-module Packet = Packet;
+let read_task = Packet.read_from_pipe;

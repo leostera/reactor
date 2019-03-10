@@ -1,6 +1,6 @@
 module Process = Process;
 
-let cpu_count =
+let cpu_count = () =>
   try (
     switch (Sys.os_type) {
     | "Win32" => Sys.getenv("NUMBER_OF_PROCESSORS") |> int_of_string

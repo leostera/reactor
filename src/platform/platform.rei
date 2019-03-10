@@ -50,5 +50,5 @@ module Process: {
     );
 };
 
-/** [count()] evaluates to the current CPU count. */
+/** [cpu_count()] evaluates to the current CPU count. */
 let cpu_count: unit => int;

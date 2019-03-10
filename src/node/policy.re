@@ -3,7 +3,7 @@ type t = {
   schedulers: int,
 };
 
-let default = () => {schedulers: Platform.Cpu.count()};
+let default = () => {schedulers: Platform.cpu_count()};
 
 let custom = (~scheduler_count) => {schedulers: scheduler_count};
 

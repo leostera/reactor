@@ -1,5 +1,9 @@
 module Unix = UnixLabels;
 
+type read_fd = [ | `Read(Unix.file_descr)];
+
+type write_fd = [ | `Write(Unix.file_descr)];
+
 let pipe = () => {
   let (r, w) = Unix.pipe();
   (`Read(r), `Write(w));
