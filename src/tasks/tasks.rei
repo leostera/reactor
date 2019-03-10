@@ -1,9 +1,8 @@
-let send: (Reactor_process.Process.Pid.t, string) => unit;
+let send: (Process.Pid.t, string) => unit;
 
-let (<-): (Reactor_process.Process.Pid.t, string) => unit;
+let (<-): (Process.Pid.t, string) => unit;
 
-let spawn:
-  (Reactor_process.Process.task('a), 'a) => Reactor_process.Process.Pid.t;
+let spawn: (Process.task('a), 'a) => Process.Pid.t;
 
 let halt: unit => unit;
 

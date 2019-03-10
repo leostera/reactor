@@ -1,16 +1,16 @@
 type t;
 
 type task = [
-  | `From_coordinator(Reactor_bytecode.Bytecode.t)
-  | `From_scheduler(Reactor_bytecode.Bytecode.t)
+  | `From_coordinator(Bytecode.t)
+  | `From_scheduler(Bytecode.t)
   | `Reduction(unit => unit)
 ];
 
 let id: t => int;
 
-let last_pid: t => Reactor_process.Process.Pid.t;
+let last_pid: t => Process.Pid.t;
 
-let next_pid: t => Reactor_process.Process.Pid.t;
+let next_pid: t => Process.Pid.t;
 
 let current: unit => option(t);
 

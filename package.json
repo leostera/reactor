@@ -6,6 +6,7 @@
   "license": "MIT",
   "esy": { "build": "refmterr dune build -p #{self.name}", "NOTE": "" },
   "scripts": {
+    "docs": "esy dune build @doc",
     "open-docs": "open #{self.target_dir}/default/_doc/_html/index.html"
   },
   "dependencies": {

@@ -1,7 +1,7 @@
-module Node = Reactor_node.Node;
-module Process = Reactor_process.Process;
+module Node = Node;
+module Process = Process;
 module Pid = Process.Pid;
 
 module System = {
-  include Reactor_tasks.Tasks;
+  include Tasks;
 };

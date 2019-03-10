@@ -1,4 +1,4 @@
 (library
-  (name reactor_tasks)
+  (name tasks)
   (public_name reactor.tasks)
   (libraries reactor.node))

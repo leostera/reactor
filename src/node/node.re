@@ -1,10 +1,5 @@
 module Policy = Policy;
 
-module Task_queue = Reactor_task_queue.Task_queue;
-module Scheduler = Reactor_scheduler.Scheduler;
-module Coordinator = Reactor_coordinator.Coordinator;
-module Bytecode = Reactor_bytecode.Bytecode;
-
 type t = {
   unix_pid: int,
   should_halt: bool,

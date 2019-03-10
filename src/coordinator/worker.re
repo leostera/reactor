@@ -1,4 +1,4 @@
-module Bytecode = Reactor_bytecode.Bytecode;
+module Bytecode = Bytecode;
 
 let wait_next_available:
   (

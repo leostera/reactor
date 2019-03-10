@@ -1,5 +1,3 @@
-module Bytecode = Reactor_bytecode.Bytecode;
-
 let create_pool =
     (~child_count, ~is_child, ~on_child, ~on_parent, ~after_child_spawn) => {
   Array.make(child_count, 0)
@@ -20,10 +18,7 @@ let create_pool =
 };
 
 let send_task: (Bytecode.t, Unix.file_descr) => unit =
-  (task, fd) => {
-    let cmd = Packet.encode(task);
-    Platform.Process.write(fd, ~buf=cmd);
-  };
+  (task, fd) => Platform.Process.write(fd, ~buf=Packet.encode(task));
 
 let wait_next_available = Worker.wait_next_available;
 

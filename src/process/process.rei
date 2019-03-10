@@ -39,5 +39,4 @@ let recv: (t, unit) => option(string);
 
 let make: Pid.t => t;
 
-module Registry:
-  Reactor_registry.Registry.REGISTRY with type key = Pid.t and type value = t;
+module Registry: Registry.REGISTRY with type key = Pid.t and type value = t;
