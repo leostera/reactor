@@ -1,6 +1,6 @@
 {
   "name": "reactor",
-  "version": "0.0.2-alpha",
+  "version": "0.0.3",
   "keywords": [ "Actor-model", "actor", "concurrency" ],
   "author": "Leandro Ostera <leandro@ostera.io>",
   "license": "MIT",
