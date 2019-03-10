@@ -15,7 +15,7 @@
     "@opam/fmt": "*",
     "@opam/logs": "*",
     "@opam/lwt": "*",
-    "@opam/odoc": "1.3.0",
+    "@opam/odoc": "1.4.0",
     "@opam/qcheck": "0.9",
     "@opam/qcheck-alcotest": "0.9",
     "ocaml": "~4.7.0",
