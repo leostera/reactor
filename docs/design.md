@@ -1,3 +1,5 @@
+# Reactor's Design
+
 When the application is set up for the first time, the current OS process
 will become a __Node__. Its job will be to bootstrap, keep alive, and
 coordinate messages across __Schedulers__. These Schedulers are separate OS
