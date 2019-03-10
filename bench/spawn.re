@@ -6,7 +6,7 @@ Logs.set_level(Some(Logs.App));
 Logs.set_reporter(Logs_fmt.reporter());
 
 /** System setup */
-Reactor.Scheduler.(Policy.default() |> setup);
+Reactor.Node.(Policy.default() |> setup);
 
 let spawn_counter = pid =>
   spawn((_ctx, _) => {
@@ -36,4 +36,4 @@ let _ =
     (1_000_000, (-1)),
   );
 
-Reactor.Scheduler.run();
+Reactor.Node.run();

@@ -2,7 +2,7 @@ open Reactor.System;
 
 let become_reduction = () => {
   let res = ref(false);
-  Reactor.Scheduler.(Policy.default() |> setup);
+  Reactor.Node.(Policy.default() |> setup);
 
   let _ =
     spawn(
@@ -16,14 +16,14 @@ let become_reduction = () => {
       5,
     );
 
-  Reactor.Scheduler.run();
+  Reactor.Node.run();
   Alcotest.(check(bool, "", res^, true));
 };
 
 let deferred_reduction = () => {
   let res = ref(false);
 
-  Reactor.Scheduler.(Policy.default() |> setup);
+  Reactor.Node.(Policy.default() |> setup);
 
   let _ =
     spawn(
@@ -39,7 +39,7 @@ let deferred_reduction = () => {
       5,
     );
 
-  Reactor.Scheduler.run();
+  Reactor.Node.run();
   Alcotest.(check(bool, "", res^, true));
 };
 

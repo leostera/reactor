@@ -13,9 +13,9 @@ let result =
       (
         "Startup",
         () => {
-          Reactor.Scheduler.(Policy.default() |> setup);
+          Reactor.Node.(Policy.default() |> setup);
           let _ = spawn((_, _) => exit(), ());
-          Reactor.Scheduler.run();
+          Reactor.Node.run();
         },
         (),
       ),

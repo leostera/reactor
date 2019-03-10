@@ -6,7 +6,7 @@ Logs.set_reporter(Logs_fmt.reporter());
 
 /** Logging setup */
 let begin_at = Unix.time();
-Reactor.Scheduler.(Policy.default() |> setup);
+Reactor.Node.(Policy.default() |> setup);
 
 spawn(
   (_, (last, this, count)) =>
@@ -20,7 +20,7 @@ spawn(
 )
 |> ignore;
 
-Reactor.Scheduler.run();
+Reactor.Node.run();
 
 let end_at = Unix.time();
 let delta = end_at -. begin_at;

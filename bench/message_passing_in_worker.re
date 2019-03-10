@@ -6,7 +6,7 @@ Logs.set_level(Some(Logs.App));
 Logs.set_reporter(Logs_fmt.reporter());
 
 /** System setup */
-Reactor.Scheduler.(Policy.default() |> setup);
+Reactor.Node.(Policy.default() |> setup);
 
 let msg = Bytes.(create(64998) |> to_string);
 
@@ -25,4 +25,4 @@ let pid =
 
 pid <- msg;
 
-Reactor.Scheduler.run();
+Reactor.Node.run();
