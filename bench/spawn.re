@@ -6,6 +6,7 @@ Logs.set_level(Some(Logs.App));
 Logs.set_reporter(Logs_fmt.reporter());
 
 /** System setup */
+let begin_at = Unix.time();
 Reactor.Node.(Policy.default() |> setup);
 
 let spawn_counter = pid =>
@@ -37,3 +38,7 @@ let _ =
   );
 
 Reactor.Node.run();
+
+let end_at = Unix.time();
+let delta = end_at -. begin_at;
+Logs.app(m => m("Spawned and terminated 1,000,000 Actors in: %.2fs", delta));

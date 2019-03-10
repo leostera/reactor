@@ -1,10 +1,11 @@
 open Reactor.System;
 
+/** Logging setup */
 Fmt_tty.setup_std_outputs();
 Logs.set_level(Some(Logs.App));
 Logs.set_reporter(Logs_fmt.reporter());
 
-/** Logging setup */
+/** System setup */
 let begin_at = Unix.time();
 Reactor.Node.(Policy.default() |> setup);
 

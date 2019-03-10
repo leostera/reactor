@@ -1,4 +1,6 @@
 (library
  (name reactor)
  (public_name reactor)
- (libraries reactor.tasks reactor.node reactor.process))
+ (libraries
+  reactor.tasks reactor.node reactor.process
+  logs logs.fmt fmt fmt.tty))
