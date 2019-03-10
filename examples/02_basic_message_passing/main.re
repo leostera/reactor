@@ -18,7 +18,7 @@ Logs.set_reporter(Logs_fmt.reporter());
   As a bonus we will open the [!Reactor.System] module to get access to a few
   handy functions.
 */
-Reactor.Scheduler.(Policy.default() |> setup);
+Reactor.Node.(Policy.default() |> setup);
 
 open Reactor.System;
 
@@ -114,7 +114,7 @@ pid'' <- "pls exit";
   We do this with the call below, which will block until some process calls
   `exit`.
  */
-Reactor.Scheduler.run();
+Reactor.Node.run();
 
 /**
   And that's it for today! You're now ready to create thousands of processes
