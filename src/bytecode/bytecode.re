@@ -1,5 +1,5 @@
 type t =
-  | Halt
+  | Halt: t
   | Send_message(Process.Pid.t, Process.Message.t): t
   | Spawn(Process.Pid.t, Process.task('state), 'state): t;
 
