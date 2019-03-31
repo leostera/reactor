@@ -26,4 +26,4 @@ let wait_next_available:
     [> | `Send(list(Unix.file_descr)) | `Wait],
   );
 
-let read_task: [< | `Read(Unix.file_descr)] => Bytecode.t;
+let read_task: [< | `Read(Unix.file_descr)] => option(Bytecode.t);

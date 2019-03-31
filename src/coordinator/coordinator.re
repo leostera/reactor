@@ -48,7 +48,16 @@ let wait_next_available = (read_fds, write_fds) => {
   let receive =
     switch (reads) {
     | `Read(ins) when List.length(ins) > 0 =>
-      let cmds = List.map(fd => Packet.read_from_pipe(`Read(fd)), ins);
+      let cmds =
+        List.fold_left(
+          (acc, fd) =>
+            switch (Packet.read_from_pipe(`Read(fd))) {
+            | None => acc
+            | Some(data) => [data, ...acc]
+            },
+          [],
+          ins,
+        );
       `Receive(cmds);
     | _ => `Wait
     };

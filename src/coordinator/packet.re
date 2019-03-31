@@ -16,15 +16,12 @@ let encode = data => {
 
 let read_from_pipe = (`Read(pipe)) => {
   let raw_size = Platform.Process.read(pipe, ~len=header_size);
-  let data_size =
-    switch (Int32.of_string_opt(raw_size)) {
-    | None =>
-      Logs.info(m =>
-        m("Something went wrong reading the size of the packet!")
-      );
-      0;
-    | Some(x) => x |> Int32.to_int
-    };
-  let raw_data = Platform.Process.read(pipe, ~len=data_size);
-  Marshal.from_string(raw_data, 0);
+  switch (Int32.of_string_opt(raw_size)) {
+  | None => None
+  | Some(x) =>
+    let data_size = x |> Int32.to_int;
+    let raw_data = Platform.Process.read(pipe, ~len=data_size);
+    let value = Marshal.from_string(raw_data, 0);
+    Some(value);
+  };
 };
