@@ -1,0 +1,3 @@
+(executable
+  (name log_splitter)
+  (libraries bos logs logs.fmt fmt fmt.tty))
