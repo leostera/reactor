@@ -184,8 +184,10 @@ let run = (`Write(to_parent), `Read(from_parent), scheduler) => {
       switch (read_fds) {
       | [fd] =>
         Logs.debug(m => m("[%i] Receiving tasks...", pid));
-        let task = Coordinator.read_task(`Read(fd));
-        enqueue(scheduler, `From_coordinator(task));
+        switch (Coordinator.read_task(`Read(fd))) {
+        | None => ()
+        | Some(task) => enqueue(scheduler, `From_coordinator(task))
+        };
       | _ => ()
       };
 
