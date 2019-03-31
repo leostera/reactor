@@ -107,7 +107,7 @@ let kill_schedulers = wrkrs => {
   Platform.Process.wait(pids);
 };
 
-let halt_system = () => {
+let mark_system_to_halt_on_next_tick = () => {
   __node := {...__node^, should_halt: true};
 };
 
@@ -139,7 +139,7 @@ let enter_loop = node => {
         switch (Task_queue.next(tasks)) {
         | None => ()
         | Some(Bytecode.Halt as task) =>
-          halt_system();
+          mark_system_to_halt_on_next_tick();
           send_task(task);
         | Some(task) => send_task(task)
         };
