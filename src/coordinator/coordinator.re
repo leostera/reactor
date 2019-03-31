@@ -1,20 +1,32 @@
 let create_pool =
     (~child_count, ~is_child, ~on_child, ~on_parent, ~after_child_spawn) => {
   Array.make(child_count, 0)
-  |> Array.iteri((_, _) => {
-       let current =
-         switch (Platform.Process.piped_fork()) {
-         | `In_child(to_parent, from_parent) =>
-           on_child(Platform.Process.pid(), to_parent, from_parent);
-           `From_child;
-         | `In_parent(pid, write, read) =>
-           `From_parent(on_parent(pid, write, read))
+  |> Array.iteri((i, _) =>
+       switch (is_child()) {
+       | false =>
+         Logs.info(m =>
+           m(
+             "[%d] Spawning %d/%d ",
+             Platform.Process.pid(),
+             i + 1,
+             child_count,
+           )
+         );
+         let current =
+           switch (Platform.Process.piped_fork()) {
+           | `In_child(to_parent, from_parent) =>
+             on_child(Platform.Process.pid(), to_parent, from_parent);
+             `From_child;
+           | `In_parent(pid, write, read) =>
+             `From_parent(on_parent(pid, write, read))
+           };
+         switch (current) {
+         | `From_parent(worker) => after_child_spawn(worker)
+         | `From_child => ()
          };
-       switch (is_child(), current) {
-       | (false, `From_parent(worker)) => after_child_spawn(worker)
        | _ => ()
-       };
-     });
+       }
+     );
 };
 
 let read_task = Packet.read_from_pipe;
@@ -36,8 +48,7 @@ let wait_next_available = (read_fds, write_fds) => {
   let receive =
     switch (reads) {
     | `Read(ins) when List.length(ins) > 0 =>
-      let cmds: list(Bytecode.t) =
-        List.map(fd => Packet.read_from_pipe(`Read(fd)), ins);
+      let cmds = List.map(fd => Packet.read_from_pipe(`Read(fd)), ins);
       `Receive(cmds);
     | _ => `Wait
     };
