@@ -44,6 +44,7 @@ let halt = t => {
 };
 
 let setup = (~pid, `Write(to_parent), `Read(from_parent)) => {
+  Logs.info(m => m("[%d] Setting up scheduler...", pid));
   let scheduler = {
     id: pid,
     unix_pid: pid,

@@ -113,7 +113,7 @@ let mark_system_to_halt_on_next_tick = () => {
 
 let enter_loop = node => {
   let {schedulers, unix_pid, _} = node;
-  Logs.info(m => m("[%d] Beginning scheduling loop...", unix_pid));
+  Logs.info(m => m("[%d] Beginning node's coordinating loop...", unix_pid));
 
   let (reads, writes) =
     schedulers
