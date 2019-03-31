@@ -156,10 +156,12 @@ let run = (`Write(to_parent), `Read(from_parent), scheduler) => {
     switch (scheduler.should_halt^) {
     | true => ()
     | _ =>
+      let pid = scheduler.unix_pid;
+
       Logs.debug(m =>
         m(
           "[%i] Tasks queue has %d tasks",
-          scheduler.unix_pid,
+          pid,
           scheduler.tasks |> Task_queue.length,
         )
       );
@@ -172,29 +174,23 @@ let run = (`Write(to_parent), `Read(from_parent), scheduler) => {
           ~timeout=-1.0,
         );
 
-      switch (read_fds) {
-      | fds when List.length(fds) > 0 =>
-        Logs.debug(m => m("[%i] Receiving tasks...", scheduler.unix_pid));
-        let cmd: Bytecode.t = Coordinator.read_task(`Read(from_parent));
-        Task_queue.queue(scheduler.tasks, `From_coordinator(cmd));
-      | _ => ()
+      switch (Task_queue.next(scheduler.tasks), write_fds) {
+      | (Some(task), [fd]) =>
+        Logs.debug(m => m("[%i] Handling tasks...", pid));
+        handle_task(scheduler, `Write(fd), task);
+      | _ => Logs.debug(m => m("[%i] No tasks to send. Standing by.", pid))
       };
 
-      switch (scheduler.tasks |> Task_queue.length, write_fds) {
-      | (x, fds) when List.length(fds) > 0 && x > 0 =>
-        switch (Task_queue.next(scheduler.tasks)) {
-        | None =>
-          Logs.debug(m =>
-            m("[%i] No tasks to send. Standing by.", scheduler.unix_pid)
-          )
-        | Some(task) =>
-          Logs.debug(m => m("[%i] Handling tasks...", scheduler.unix_pid));
-          handle_task(scheduler, `Write(to_parent), task);
-        }
+      switch (read_fds) {
+      | [fd] =>
+        Logs.debug(m => m("[%i] Receiving tasks...", pid));
+        let task = Coordinator.read_task(`Read(fd));
+        enqueue(scheduler, `From_coordinator(task));
       | _ => ()
       };
 
       Lwt_engine.iter(false);
+
       do_loop();
     };
   };
@@ -203,8 +199,7 @@ let run = (`Write(to_parent), `Read(from_parent), scheduler) => {
     Logs.err(m => {
       let err = Printexc.to_string(e);
       m("[%i] Uncaught exception in scheduler: %s", scheduler.unix_pid, err);
-    });
-    exit(1);
-  | x => x
+    })
+  | _ => ()
   };
 };
