@@ -10,6 +10,7 @@ let pipe = () => {
 };
 
 let write = (fd, ~buf) => {
+  let buf = buf |> Bytes.of_string;
   let len = buf |> Bytes.length;
   let _ = Unix.write(fd, ~buf, ~pos=0, ~len);
   ();
@@ -28,7 +29,7 @@ let read = (fd, ~len) => {
       }
     };
   };
-  read_pipe(0, len);
+  read_pipe(0, len) |> Bytes.to_string;
 };
 
 let fork = () => {
@@ -63,3 +64,11 @@ let select = (~read, ~write, ~except, ~timeout) => {
 };
 
 let kill = pid => Unix.kill(~pid, ~signal=Sys.sigkill);
+
+let rec wait = xs =>
+  switch (xs) {
+  | [_, ...ps] =>
+    Unix.wait() |> ignore;
+    wait(ps);
+  | [] => ()
+  };

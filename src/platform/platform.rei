@@ -18,14 +18,19 @@ module Process: {
   let kill: int => unit;
 
   /**
-    [write(fd, ~buf=bytes)] will write [bytes] into [fd].
+    [wait(ps)] will block until all [ps] pids are terminated.
     */
-  let write: (Unix.file_descr, ~buf: bytes) => unit;
+  let wait: list(int) => unit;
 
   /**
-    [read(fd, ~len=n)] will read [n] bytes out of [fd].
+    [write(fd, ~buf=bytes)] will write [bytes] into [fd].
     */
-  let read: (Unix.file_descr, ~len: int) => bytes;
+  let write: (Unix.file_descr, ~buf: string) => unit;
+
+  /**
+    [read(fd, ~len=n)] will read [n] bytes out of [fd] into a string.
+    */
+  let read: (Unix.file_descr, ~len: int) => string;
 
   let pipe: unit => (read_fd, write_fd);
 
