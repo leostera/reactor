@@ -8,11 +8,13 @@ type t = {
   tasks: Task_queue.t(Bytecode.t),
 };
 
+let __is_node: ref(bool) = ref(true);
+
 let __node: ref(t) =
   ref({
     unix_pid: Platform.Process.pid(),
-    should_halt: false,
     policy: Policy.default(),
+    should_halt: false,
     schedulers: Scheduler_view.Registry.create(),
     tasks: Task_queue.create(),
   });
@@ -49,7 +51,12 @@ let setup = policy => {
   set_policy(policy);
   let {policy, schedulers, _} = current();
 
+  let mark_as_scheduler = () => {
+    __is_node := false;
+  };
+
   let on_child = (pid, to_parent, from_parent) => {
+    mark_as_scheduler();
     Scheduler.setup(~pid, to_parent, from_parent)
     |> Scheduler.run(to_parent, from_parent);
   };
@@ -63,7 +70,7 @@ let setup = policy => {
 
   Coordinator.create_pool(
     ~child_count=Policy.scheduler_count(policy),
-    ~is_child=Scheduler.is_scheduler,
+    ~is_child=() => __is_node^ != true,
     ~on_child,
     ~on_parent,
     ~after_child_spawn,
@@ -88,48 +95,75 @@ let setup = policy => {
 };
 
 let kill_schedulers = wrkrs => {
-  wrkrs
-  |> Seq.map(Scheduler_view.unix_pid)
-  |> Seq.iter(Platform.Process.kill);
+  let pids = wrkrs |> Seq.map(Scheduler_view.unix_pid) |> List.of_seq;
+  pids |> List.iter(Platform.Process.kill);
+  Logs.info(m =>
+    m(
+      "[%d] Waiting for %d schedulers to finish...",
+      Platform.Process.pid(),
+      pids |> List.length,
+    )
+  );
+  Platform.Process.wait(pids);
 };
 
 let halt_system = () => {
   __node := {...__node^, should_halt: true};
 };
 
-let rec run_node = () => {
-  let {tasks, schedulers, should_halt, _} = current();
-  switch (should_halt) {
-  | true => ()
-  | _ =>
-    let (reads, writes) =
-      schedulers
-      |> Scheduler_view.Registry.values
-      |> Seq.map(Scheduler_view.pipes)
-      |> Seq.fold_left(Scheduler_view.fold_pipes, ([], []));
+let enter_loop = node => {
+  let {schedulers, unix_pid, _} = node;
+  Logs.info(m => m("[%d] Beginning scheduling loop...", unix_pid));
 
-    let (reads, writes) = Coordinator.wait_next_available(reads, writes);
+  let (reads, writes) =
+    schedulers
+    |> Scheduler_view.Registry.values
+    |> Seq.map(Scheduler_view.pipes)
+    |> Seq.fold_left(Scheduler_view.fold_pipes, ([], []));
 
-    switch (reads) {
-    | `Receive(cmds) => List.iter(Task_queue.queue(tasks), cmds)
-    | `Wait => ()
-    };
+  let rec do_loop = () => {
+    let {tasks, should_halt, _} = current();
+    switch (should_halt) {
+    | true => ()
+    | _ =>
+      let (reads, writes) = Coordinator.wait_next_available(reads, writes);
 
-    switch (writes) {
-    | `Send(wrkr_fds) =>
-      let send_task = t => List.iter(Coordinator.send_task(t), wrkr_fds);
-      switch (Task_queue.next(tasks)) {
-      | None => ()
-      | Some(Bytecode.Halt as task) =>
-        halt_system();
-        send_task(task);
-      | Some(task) => send_task(task)
+      switch (reads) {
+      | `Receive(cmds) => List.iter(Task_queue.queue(tasks), cmds)
+      | `Wait => ()
       };
-    | `Wait => ()
-    };
 
-    run_node();
+      switch (writes) {
+      | `Send(wrkr_fds) =>
+        let send_task = t => List.iter(Coordinator.send_task(t), wrkr_fds);
+        switch (Task_queue.next(tasks)) {
+        | None => ()
+        | Some(Bytecode.Halt as task) =>
+          halt_system();
+          send_task(task);
+        | Some(task) => send_task(task)
+        };
+      | `Wait => ()
+      };
+
+      do_loop();
+    };
   };
+
+  do_loop();
+};
+
+let shutdown = node => {
+  Logs.info(m => m("[%d] Node shutting down...", node.unix_pid));
+  __node :=
+    {
+      ...node,
+      should_halt: false,
+      schedulers: Scheduler_view.Registry.create(),
+      tasks: Task_queue.create(),
+    };
+  kill_schedulers(node.schedulers |> Scheduler_view.Registry.values);
+  Logs.info(m => m("[%d] Node shutdown completed.", node.unix_pid));
 };
 
 let run = () => {
@@ -139,9 +173,7 @@ let run = () => {
     Logs.info(m => m("[%d] Scheduler shutting down...", id));
     exit(0);
   | `Node(node) =>
-    Logs.debug(m => m("[%d] Beginning scheduling loop...", node.unix_pid));
-    run_node();
-    kill_schedulers(node.schedulers |> Scheduler_view.Registry.values);
-    Logs.info(m => m("[%d] Node shutting down...", node.unix_pid));
+    enter_loop(node);
+    shutdown(node);
   };
 };
