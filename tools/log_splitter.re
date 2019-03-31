@@ -41,9 +41,11 @@ module Bucket = {
 
   let dump = t => {
     Table.to_seq(t)
-    |> Seq.iter(((pid, lines)) => {
+    |> List.of_seq
+    |> List.sort(((p1, _), (p2, _)) => String.compare(p1, p2))
+    |> List.iter(((pid, lines)) => {
          Printf.printf("Process %s: \n", pid);
-         List.iter(line => Printf.printf("%s\n%!", line), lines);
+         lines |> List.rev |> List.iter(line => Printf.printf("%s\n%!", line));
          Printf.printf("\n");
        });
   };
